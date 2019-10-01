@@ -1,0 +1,30 @@
+---
+server:
+  # http:
+  #   listen: "0.0.0.0:18080"
+  grpc:
+    listen: "0.0.0.0:19094"
+  monitoring:
+    listen: "0.0.0.0:28080"
+producer:
+  resend:
+    period: 1m
+    rate_limit: 10000
+  wal:
+    mode: "fallback"
+    path: /data/wal
+    skip_topics:
+    - test1
+kafka:
+    brokers:
+        - "kafka1.data.afdevops.com:9092" 
+        - "kafka2.data.afdevops.com:9092" 
+    # possible configuration parameters are:
+    # https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+    "compression.codec": "gzip"
+    "batch.num.messages": 10000
+    "max.in.flight.requests.per.connection": 20
+    "message.timeout.ms": 60000
+    "socket.timeout.ms": 10000
+    "linger.ms": 3000
+    "statistics.interval.ms": 10000
