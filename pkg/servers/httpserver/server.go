@@ -19,21 +19,26 @@ const (
 	// HTTP headers used by the API.
 	hdrContentLength = "Content-Length"
 	hdrContentType   = "Content-Type"
-
-	prmTopic = "topic"
 )
 
 type Server server.T
 
-func (s *Server) getRouter() http.Handler {
+func (s *Server) getRouter(deploymentOwnerUserName string, deploymentName string) http.Handler {
 	r := mux.NewRouter()
-	r.HandleFunc(fmt.Sprintf("/endpoint/{%s}/messages", prmTopic), s.messageHandler)
+
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{endpointOutput}", deploymentOwnerUserName, deploymentName), s.messageHandler)
+
 	r.HandleFunc("/topics", s.topicsHandler).Methods("GET")
+
 	return r
 }
 
 func (s *Server) Start(configPath string) {
-	r := s.getRouter()
+
+	deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
+	deploymentName := s.Config.GetString("deploymentName")
+
+	r := s.getRouter(deploymentOwnerUserName, deploymentName)
 	c := s.Config.Sub(configPath)
 	addr := c.GetString("listen")
 	httpServer := &http.Server{
@@ -57,22 +62,31 @@ func (s *Server) Start(configPath string) {
 	defer cancel()
 	httpServer.Shutdown(ctx)
 	close(s.Done)
+
 }
 
 func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
+
 	var msg []byte
 	var err error
 
-	topic := mux.Vars(r)[prmTopic]
+	endpointOutput := mux.Vars(r)["endpointOutput"]
+	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
+		s.Config.GetString("deploymentOwnerUserName"),
+		s.Config.GetString("deploymentName"),
+		endpointOutput))
+
 	if msg, err = readMsg(r); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	s.Producer.Send(topic, msg)
+
 }
 
 func readMsg(r *http.Request) ([]byte, error) {
+
 	contentType := r.Header.Get(hdrContentType)
 	if contentType == "text/plain" || contentType == "application/json" {
 		if _, ok := r.Header[hdrContentLength]; !ok {
@@ -93,7 +107,9 @@ func readMsg(r *http.Request) ([]byte, error) {
 		}
 		return msg, nil
 	}
+
 	return nil, errors.Errorf("unsupported content type %s", contentType)
+
 }
 
 func (s *Server) topicsHandler(w http.ResponseWriter, r *http.Request) {

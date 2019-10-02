@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,7 +15,6 @@ import (
 
 	ckg "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/yaml.v2"
 )
 
 //it's needed to pass wal config.
@@ -32,7 +30,17 @@ var (
 		"global.log.outputPaths":      ("stdout"),
 		"global.log.errorOutputPaths": ("stderr"),
 		"global.log.encoderConfig":    logger.NewEncoderConfig(),
-		"server.http.listen":          ":19092",
+		"server.http.listen":          ":18080",
+		"server.grpc.listen":          ":18282",
+		"server.monitoring.listen":    ":28080",
+		"producer.cb.interval":        0,
+		"producer.cb.timeout":         "20s",
+		"producer.cb.fails":           5,
+		"producer.cb.requests":        3,
+		"producer.resend.period":      "33s",
+		"producer.resend.rate_limit":  10000,
+		"producer.wal.mode":           "fallback",
+		"producer.wal.path":           "/data/wal",
 		// Please take a look at:
 		// https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
 		// for more configuration parameters
@@ -60,7 +68,7 @@ func main() {
 	s := new(servers.T)
 	c := &config.T{
 		Filename:  configPathName,
-		EnvPrefix: "ka",
+		EnvPrefix: "EP",
 	}
 	s.Config, err = c.ReadConfig(defaults)
 	if err != nil {
@@ -81,19 +89,11 @@ func main() {
 	if err != nil {
 		return
 	}
-	//separate config read for wal. This is to be refactored
-	data, err := ioutil.ReadFile(configPathName)
-	if err != nil {
-		panic("could not read config file")
-	}
-	var anotherConfig Config
-	if err := yaml.Unmarshal(data, &anotherConfig); err != nil {
-		s.Logger.Fatalf("error: %v", err)
-	}
+
 	producer := &kafka.T{}
 	producer.Logger = s.Logger
 	producer.Config = kafka.ProducerConfig(s.Config)
-	producer.Config.Wal = anotherConfig.Producer.Wal
+	// producer.Config.Wal = s.Config.Producer.Wal
 	err = producer.Init(&kafkaParams, s.Prometheus)
 	if err != nil {
 		s.Logger.Fatal("Could not initialize producer")

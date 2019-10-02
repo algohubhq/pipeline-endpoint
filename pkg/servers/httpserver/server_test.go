@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"deployment-endpoint/pkg/kafka_mock"
+
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
@@ -25,7 +26,7 @@ func TestListTopics(t *testing.T) {
 
 	respRecorder := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/topics", bytes.NewReader(message))
-	router := s.getRouter()
+	router := s.getRouter("tests", "test-deployment")
 	router.ServeHTTP(respRecorder, req)
 
 	respBytes, err := ioutil.ReadAll(respRecorder.Body)

@@ -1,7 +1,9 @@
 package config
 
 import (
+	"os"
 	"reflect"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -13,6 +15,7 @@ type T struct {
 }
 
 func (c *T) ReadConfig(defaults map[string]interface{}) (*viper.Viper, error) {
+
 	v := viper.New()
 	v.SetEnvPrefix(c.EnvPrefix)
 
@@ -21,13 +24,32 @@ func (c *T) ReadConfig(defaults map[string]interface{}) (*viper.Viper, error) {
 	}
 
 	v.AutomaticEnv()
-	if c.Filename == "" {
+	if c.Filename != "" {
 		c.Filename = v.GetString("config")
+		v.SetConfigFile(c.Filename)
+		err := v.ReadInConfig()
+		return v, err
 	}
-	v.SetConfigFile(c.Filename)
 
-	err := v.ReadInConfig()
+	// Get full config from the envar
+	endpointConfig := os.Getenv("ENDPOINT_CONFIG")
+	if endpointConfig != "" {
+		v.SetConfigType("json") // or viper.SetConfigType("yaml")
+		err := v.ReadConfig(strings.NewReader(endpointConfig))
+		return v, err
+	}
+
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found; ignore error
+			return v, nil
+		}
+	}
+
 	return v, err
+
 }
 
 func Flatten(value interface{}) map[string]interface{} {

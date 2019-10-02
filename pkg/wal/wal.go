@@ -46,7 +46,12 @@ func New(conf Config, prom *prometheus.Registry, logger logger.Logger) (*Wal, er
 		logger.Panic("Could not merge config: %s", err)
 	}
 	logger.Debugf("wal config loaded: %+v", conf)
-	badgerOpts := badger.DefaultOptions("/tmp/badger")
+
+	if _, err := os.Stat(conf.Path); os.IsNotExist(err) {
+		os.Mkdir(conf.Path, os.ModePerm)
+	}
+
+	badgerOpts := badger.DefaultOptions(conf.Path)
 	if conf.Path != "" {
 		ok, err := isWritable(conf.Path)
 		if !ok {
