@@ -2,12 +2,15 @@ package grpcserver
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
+	"strings"
 
 	"deployment-endpoint/pkg/server"
 
-	pb "github.com/anchorfree/data-go/pkg/ambassador/pb"
+	pb "deployment-endpoint/pkg/pb"
+
 	"google.golang.org/grpc"
 )
 
@@ -76,7 +79,23 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 			return err
 		}
 
-		s.Producer.Send(req.Topic, req.Message)
+		deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
+		deploymentName := s.Config.GetString("deploymentName")
+
+		if deploymentOwnerUserName != req.DeploymentOwnerUserName ||
+			deploymentName != req.DeploymentName {
+			err = fmt.Errorf("Received message intended for deployment [%s/%s] but this endpoint handles [%s/%s]. Message dropped",
+				req.DeploymentOwnerUserName, req.DeploymentName, deploymentOwnerUserName, deploymentName)
+			s.Logger.Errorf("%v", err)
+			return err
+		}
+
+		topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
+			deploymentOwnerUserName,
+			deploymentName,
+			req.EndpointOutput))
+
+		s.Producer.Send(topic, req.Message)
 		res = &pb.ProdRs{StreamOffset: req.StreamOffset}
 		err = stream.Send(res)
 		if err != nil {

@@ -4,8 +4,12 @@
 package pb
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -91,12 +95,14 @@ func (m *ListTopicsResponse) GetTopics() []string {
 }
 
 type ProdRq struct {
-	Topic                string   `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
-	Message              []byte   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	StreamOffset         uint64   `protobuf:"varint,3,opt,name=streamOffset,proto3" json:"streamOffset,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	DeploymentOwnerUserName string   `protobuf:"bytes,1,opt,name=deploymentOwnerUserName,proto3" json:"deploymentOwnerUserName,omitempty"`
+	DeploymentName          string   `protobuf:"bytes,2,opt,name=deploymentName,proto3" json:"deploymentName,omitempty"`
+	EndpointOutput          string   `protobuf:"bytes,3,opt,name=endpointOutput,proto3" json:"endpointOutput,omitempty"`
+	Message                 []byte   `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	StreamOffset            uint64   `protobuf:"varint,5,opt,name=streamOffset,proto3" json:"streamOffset,omitempty"`
+	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
+	XXX_unrecognized        []byte   `json:"-"`
+	XXX_sizecache           int32    `json:"-"`
 }
 
 func (m *ProdRq) Reset()         { *m = ProdRq{} }
@@ -124,9 +130,23 @@ func (m *ProdRq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ProdRq proto.InternalMessageInfo
 
-func (m *ProdRq) GetTopic() string {
+func (m *ProdRq) GetDeploymentOwnerUserName() string {
 	if m != nil {
-		return m.Topic
+		return m.DeploymentOwnerUserName
+	}
+	return ""
+}
+
+func (m *ProdRq) GetDeploymentName() string {
+	if m != nil {
+		return m.DeploymentName
+	}
+	return ""
+}
+
+func (m *ProdRq) GetEndpointOutput() string {
+	if m != nil {
+		return m.EndpointOutput
 	}
 	return ""
 }
@@ -194,20 +214,172 @@ func init() {
 func init() { proto.RegisterFile("ambassador.proto", fileDescriptor_c19084e700d1da46) }
 
 var fileDescriptor_c19084e700d1da46 = []byte{
-	// 228 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0x4f, 0x4b, 0x03, 0x31,
-	0x10, 0xc5, 0x9b, 0xfe, 0xd9, 0xa5, 0x43, 0x41, 0x19, 0x45, 0x42, 0x4f, 0x31, 0xa7, 0x80, 0x25,
-	0x88, 0x7e, 0x02, 0x05, 0x4f, 0x0a, 0x4a, 0xf0, 0x24, 0x5e, 0x66, 0xdb, 0xac, 0x14, 0x89, 0x89,
-	0x99, 0x78, 0xf0, 0xdb, 0x8b, 0xe9, 0xaa, 0x88, 0x17, 0x6f, 0x79, 0x3f, 0xc2, 0x63, 0xde, 0x0f,
-	0xf6, 0x29, 0x74, 0xc4, 0x4c, 0x9b, 0x98, 0x6d, 0xca, 0xb1, 0x44, 0xdd, 0xc2, 0xec, 0x2a, 0xa4,
-	0xf2, 0xae, 0x57, 0x80, 0x37, 0x5b, 0x2e, 0xf7, 0x31, 0x6d, 0xd7, 0xec, 0x3c, 0xa7, 0xf8, 0xc2,
-	0x1e, 0x8f, 0xa0, 0x29, 0x95, 0x48, 0xa1, 0x26, 0x66, 0xee, 0x86, 0xa4, 0x1f, 0xa1, 0xb9, 0xcb,
-	0x71, 0xe3, 0x5e, 0xf1, 0x10, 0x66, 0x95, 0x49, 0xa1, 0x84, 0x99, 0xbb, 0x5d, 0x40, 0x09, 0x6d,
-	0xf0, 0xcc, 0xf4, 0xe4, 0xe5, 0x58, 0x09, 0xb3, 0x70, 0x5f, 0x11, 0x35, 0x2c, 0xb8, 0x64, 0x4f,
-	0xe1, 0xb6, 0xef, 0xd9, 0x17, 0x39, 0x51, 0xc2, 0x4c, 0xdd, 0x2f, 0xa6, 0x57, 0x43, 0x3b, 0xff,
-	0xe7, 0xf7, 0x19, 0xc1, 0xde, 0x35, 0xf5, 0xcf, 0x74, 0xf1, 0xbd, 0x0d, 0x8f, 0xa1, 0xfd, 0x2c,
-	0x78, 0x5b, 0x7b, 0x6c, 0xed, 0xee, 0xd0, 0xe5, 0xf0, 0x60, 0x3d, 0x32, 0xe2, 0x54, 0xe0, 0x09,
-	0xc0, 0xcf, 0x5e, 0x6c, 0x6c, 0xb5, 0xb0, 0x3c, 0xb0, 0x7f, 0x25, 0xe8, 0xd1, 0xe5, 0xf4, 0x61,
-	0x9c, 0xba, 0xae, 0xa9, 0xca, 0xce, 0x3f, 0x02, 0x00, 0x00, 0xff, 0xff, 0xaa, 0x9b, 0x5c, 0xe7,
-	0x46, 0x01, 0x00, 0x00,
+	// 280 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x91, 0xcf, 0x4b, 0xc3, 0x30,
+	0x14, 0xc7, 0x97, 0xfd, 0x68, 0xd9, 0x63, 0xa8, 0x44, 0xd0, 0xb0, 0x53, 0xcd, 0x41, 0x0a, 0x8e,
+	0x22, 0x7a, 0xf1, 0xaa, 0xe0, 0x49, 0x71, 0x12, 0xf4, 0xe2, 0x2d, 0x5b, 0x5f, 0xa5, 0x68, 0x9a,
+	0x98, 0x97, 0x22, 0xfb, 0x2f, 0xfd, 0x93, 0x64, 0x5d, 0x75, 0xcc, 0xe2, 0x2d, 0xef, 0xfb, 0x3e,
+	0xdf, 0x40, 0x3e, 0x81, 0x03, 0x6d, 0x16, 0x9a, 0x48, 0xe7, 0xd6, 0x67, 0xce, 0xdb, 0x60, 0x65,
+	0x0c, 0xa3, 0x5b, 0xe3, 0xc2, 0x4a, 0xce, 0x80, 0xdf, 0x97, 0x14, 0x9e, 0xac, 0x2b, 0x97, 0xa4,
+	0x90, 0x9c, 0xad, 0x08, 0xf9, 0x11, 0x44, 0xa1, 0x49, 0x04, 0x4b, 0x06, 0xe9, 0x58, 0xb5, 0x93,
+	0xfc, 0x62, 0x10, 0x3d, 0x7a, 0x9b, 0xab, 0x0f, 0x7e, 0x05, 0xc7, 0x39, 0xba, 0x77, 0xbb, 0x32,
+	0x58, 0x85, 0xf9, 0x67, 0x85, 0xfe, 0x99, 0xd0, 0x3f, 0x68, 0x83, 0x82, 0x25, 0x2c, 0x1d, 0xab,
+	0xff, 0xd6, 0xfc, 0x14, 0xf6, 0xb6, 0xab, 0xa6, 0xd0, 0x6f, 0x0a, 0x7f, 0xd2, 0x35, 0x87, 0x55,
+	0xee, 0x6c, 0x59, 0x85, 0x79, 0x1d, 0x5c, 0x1d, 0xc4, 0x60, 0xc3, 0xed, 0xa6, 0x5c, 0x40, 0x6c,
+	0x90, 0x48, 0xbf, 0xa2, 0x18, 0x26, 0x2c, 0x9d, 0xa8, 0x9f, 0x91, 0x4b, 0x98, 0x50, 0xf0, 0xa8,
+	0xcd, 0xbc, 0x28, 0x08, 0x83, 0x18, 0x25, 0x2c, 0x1d, 0xaa, 0x9d, 0x4c, 0xce, 0xda, 0x17, 0x51,
+	0x87, 0x1e, 0x74, 0xe9, 0x0b, 0x0d, 0xfb, 0x77, 0xba, 0x78, 0xd3, 0xd7, 0xbf, 0x42, 0xf9, 0x09,
+	0xc4, 0xeb, 0x0b, 0xea, 0x25, 0xf2, 0x38, 0xdb, 0xc8, 0x99, 0xb6, 0x07, 0x92, 0xbd, 0x94, 0x9d,
+	0x33, 0x7e, 0x06, 0xb0, 0x95, 0xcc, 0xa3, 0xac, 0x51, 0x3f, 0x3d, 0xcc, 0xba, 0xe6, 0x65, 0xef,
+	0x66, 0xf8, 0xd2, 0x77, 0x8b, 0x45, 0xd4, 0xfc, 0xd3, 0xe5, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x33, 0x65, 0xb3, 0xc7, 0xbb, 0x01, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// KafkaAmbassadorClient is the client API for KafkaAmbassador service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type KafkaAmbassadorClient interface {
+	Produce(ctx context.Context, opts ...grpc.CallOption) (KafkaAmbassador_ProduceClient, error)
+	ListTopics(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListTopicsResponse, error)
+}
+
+type kafkaAmbassadorClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewKafkaAmbassadorClient(cc *grpc.ClientConn) KafkaAmbassadorClient {
+	return &kafkaAmbassadorClient{cc}
+}
+
+func (c *kafkaAmbassadorClient) Produce(ctx context.Context, opts ...grpc.CallOption) (KafkaAmbassador_ProduceClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_KafkaAmbassador_serviceDesc.Streams[0], "/KafkaAmbassador/Produce", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &kafkaAmbassadorProduceClient{stream}
+	return x, nil
+}
+
+type KafkaAmbassador_ProduceClient interface {
+	Send(*ProdRq) error
+	Recv() (*ProdRs, error)
+	grpc.ClientStream
+}
+
+type kafkaAmbassadorProduceClient struct {
+	grpc.ClientStream
+}
+
+func (x *kafkaAmbassadorProduceClient) Send(m *ProdRq) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *kafkaAmbassadorProduceClient) Recv() (*ProdRs, error) {
+	m := new(ProdRs)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *kafkaAmbassadorClient) ListTopics(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListTopicsResponse, error) {
+	out := new(ListTopicsResponse)
+	err := c.cc.Invoke(ctx, "/KafkaAmbassador/ListTopics", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// KafkaAmbassadorServer is the server API for KafkaAmbassador service.
+type KafkaAmbassadorServer interface {
+	Produce(KafkaAmbassador_ProduceServer) error
+	ListTopics(context.Context, *Empty) (*ListTopicsResponse, error)
+}
+
+// UnimplementedKafkaAmbassadorServer can be embedded to have forward compatible implementations.
+type UnimplementedKafkaAmbassadorServer struct {
+}
+
+func (*UnimplementedKafkaAmbassadorServer) Produce(srv KafkaAmbassador_ProduceServer) error {
+	return status.Errorf(codes.Unimplemented, "method Produce not implemented")
+}
+func (*UnimplementedKafkaAmbassadorServer) ListTopics(ctx context.Context, req *Empty) (*ListTopicsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTopics not implemented")
+}
+
+func RegisterKafkaAmbassadorServer(s *grpc.Server, srv KafkaAmbassadorServer) {
+	s.RegisterService(&_KafkaAmbassador_serviceDesc, srv)
+}
+
+func _KafkaAmbassador_Produce_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(KafkaAmbassadorServer).Produce(&kafkaAmbassadorProduceServer{stream})
+}
+
+type KafkaAmbassador_ProduceServer interface {
+	Send(*ProdRs) error
+	Recv() (*ProdRq, error)
+	grpc.ServerStream
+}
+
+type kafkaAmbassadorProduceServer struct {
+	grpc.ServerStream
+}
+
+func (x *kafkaAmbassadorProduceServer) Send(m *ProdRs) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *kafkaAmbassadorProduceServer) Recv() (*ProdRq, error) {
+	m := new(ProdRq)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _KafkaAmbassador_ListTopics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KafkaAmbassadorServer).ListTopics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/KafkaAmbassador/ListTopics",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KafkaAmbassadorServer).ListTopics(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _KafkaAmbassador_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "KafkaAmbassador",
+	HandlerType: (*KafkaAmbassadorServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListTopics",
+			Handler:    _KafkaAmbassador_ListTopics_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Produce",
+			Handler:       _KafkaAmbassador_Produce_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "ambassador.proto",
 }
