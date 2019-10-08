@@ -24,6 +24,7 @@ func (c *T) ReadConfig(defaults map[string]interface{}) (*viper.Viper, error) {
 	}
 
 	v.AutomaticEnv()
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	if c.Filename != "" {
 		c.Filename = v.GetString("config")
 		v.SetConfigFile(c.Filename)

@@ -8,6 +8,7 @@ import (
 
 	"deployment-endpoint/pkg/logger"
 	"deployment-endpoint/pkg/wal"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sony/gobreaker"

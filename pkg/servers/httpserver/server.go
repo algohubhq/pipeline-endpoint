@@ -71,6 +71,11 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	endpointOutput := mux.Vars(r)["endpointOutput"]
+
+	if s.EndpointOutputs[endpointOutput] == nil {
+		http.Error(w, fmt.Sprintf("Endpoint Output [%s] was not found", endpointOutput), http.StatusNotFound)
+	}
+
 	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
 		s.Config.GetString("deploymentOwnerUserName"),
 		s.Config.GetString("deploymentName"),
@@ -81,7 +86,13 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.Producer.Send(topic, msg)
+	// Get the message type for this output
+	if s.EndpointOutputs[endpointOutput].MessageDataType == "FileReference" {
+		// TODO: Upload the file to the s3 bucket and generate file reference
+
+	} else {
+		s.Producer.Send(topic, msg)
+	}
 
 }
 

@@ -13,13 +13,14 @@ import (
 	"deployment-endpoint/pkg/kafka"
 	"deployment-endpoint/pkg/logger"
 	"deployment-endpoint/pkg/servers"
+	"deployment-endpoint/pkg/uploader"
 
 	ckg "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-//it's needed to pass wal config.
-//We need to refactor whole config chain to be parsed the same way - using yaml.Unmarshal
+// it's needed to pass wal config.
+// We need to refactor whole config chain to be parsed the same way - using yaml.Unmarshal
 type Config struct {
 	Producer kafka.Config `yaml:"producer"`
 }
@@ -100,6 +101,15 @@ func main() {
 			s.Logger.Fatalf("error: %v", err)
 		}
 	}
+
+	// Create the uploader
+	uploaderConfig := uploader.UploaderConfig(s.Config, s.Logger)
+	if err != nil {
+		return
+	}
+
+	uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger)
+	s.Uploader = uploader
 
 	producer := &kafka.T{}
 	producer.Logger = s.Logger
