@@ -2,11 +2,12 @@ package grpcserver
 
 import (
 	"context"
-	"errors"
-	"github.com/anchorfree/data-go/pkg/ambassador/pb"
 	"deployment-endpoint/pkg/kafka_mock"
-	"github.com/stretchr/testify/assert"
+	"deployment-endpoint/pkg/pb"
+	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestListTopics(t *testing.T) {

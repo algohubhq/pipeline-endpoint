@@ -5,8 +5,9 @@ import (
 	"io"
 	"net"
 
-	pb "github.com/anchorfree/data-go/pkg/ambassador/pb"
 	"deployment-endpoint/pkg/server"
+
+	pb "github.com/anchorfree/data-go/pkg/ambassador/pb"
 	"google.golang.org/grpc"
 )
 

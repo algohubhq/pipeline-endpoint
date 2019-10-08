@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"deployment-endpoint/pkg/config"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/spf13/viper"
 )
@@ -65,7 +66,7 @@ func Viper2Config(c *viper.Viper) (kafka.ConfigMap, error) {
 		return nil, err
 	}
 	// explicitly set bootstrap.servers has priority over brokers config
-	if sub.IsSet("bootstrap.severs") {
+	if sub.IsSet("bootstrap.servers") {
 		brokers = sub.GetString("bootstrap.servers")
 	} else {
 		brokers = strings.Join(sub.GetStringSlice("brokers"), ",")

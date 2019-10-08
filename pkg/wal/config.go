@@ -19,7 +19,7 @@ type Config struct {
 }
 
 var DefaultConfig = Config{
-	Path:                 "/tmp/wal",
+	Path:                 "/data/wal",
 	CollectMetricsPeriod: 30 * time.Second,
 	WriteBatchTimeout:    5 * time.Second,
 	DeleteBatchTimeout:   5 * time.Second,

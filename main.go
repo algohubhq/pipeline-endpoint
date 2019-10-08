@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -90,10 +91,20 @@ func main() {
 		return
 	}
 
+	// separate config read for wal. This is to be refactored
+	// Get full config from the envar
+	var anotherConfig Config
+	configData := os.Getenv("ENDPOINT_CONFIG")
+	if configData != "" {
+		if err := json.Unmarshal([]byte(configData), &anotherConfig); err != nil {
+			s.Logger.Fatalf("error: %v", err)
+		}
+	}
+
 	producer := &kafka.T{}
 	producer.Logger = s.Logger
 	producer.Config = kafka.ProducerConfig(s.Config)
-	// producer.Config.Wal = s.Config.Producer.Wal
+	producer.Config.Wal = anotherConfig.Producer.Wal
 	err = producer.Init(&kafkaParams, s.Prometheus)
 	if err != nil {
 		s.Logger.Fatal("Could not initialize producer")
