@@ -10,9 +10,9 @@ import (
 )
 
 type Config struct {
+	Host                    string `yaml:"host"`
 	deploymentOwnerUserName string `yaml:"deploymentOwnerUserName"`
 	deploymentName          string `yaml:"deploymentName"`
-	host                    string `yaml:"host"`
 	accessKeyID             string `yaml:"accessKeyID"`
 	secretAccessKey         string `yaml:"secretAccessKey"`
 	useSSL                  bool   `yaml:"useSSL"`
@@ -39,7 +39,7 @@ func UploaderConfig(c *viper.Viper, logger logger.Logger) *Config {
 
 	u.deploymentOwnerUserName = deploymentOwnerUserName
 	u.deploymentName = deploymentName
-	u.host = host.Host
+	u.Host = host.Host
 	u.accessKeyID = accessKey
 	u.secretAccessKey = secret
 	u.useSSL = host.Scheme == "https"

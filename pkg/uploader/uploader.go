@@ -3,16 +3,13 @@ package uploader
 import (
 	"bytes"
 	"deployment-endpoint/pkg/logger"
+	"deployment-endpoint/swagger"
 	"fmt"
 	"strings"
 
 	"github.com/minio/minio-go/v6"
 	"github.com/prometheus/client_golang/prometheus"
 )
-
-type I interface {
-	Upload([]byte) error
-}
 
 type Uploader struct {
 	Config *Config
@@ -23,7 +20,7 @@ type Uploader struct {
 func New(conf *Config, prom *prometheus.Registry, logger logger.Logger) (*Uploader, error) {
 
 	// Initialize minio client object.
-	minioClient, err := minio.New(conf.host, conf.accessKeyID, conf.secretAccessKey, conf.useSSL)
+	minioClient, err := minio.New(conf.Host, conf.accessKeyID, conf.secretAccessKey, conf.useSSL)
 	if err != nil {
 		logger.Errorf("Error initializing minio client [%v]", err)
 	}
@@ -54,22 +51,18 @@ func New(conf *Config, prom *prometheus.Registry, logger logger.Logger) (*Upload
 
 }
 
-func (u *Uploader) Upload(byteData []byte) error {
-
-	objectName := "golden-oldies.zip"
-	destBucket := strings.ToLower(fmt.Sprintf("algorun/%s/%s",
-		u.Config.deploymentOwnerUserName,
-		u.Config.deploymentName))
+func (u *Uploader) Upload(fileReference swagger.FileReference, byteData []byte) error {
 
 	dataReader := bytes.NewReader(byteData)
 
 	// Upload file with PutObject
-	n, err := u.client.PutObject(destBucket, objectName, dataReader, int64(len(byteData)), minio.PutObjectOptions{})
+	n, err := u.client.PutObject(fileReference.Bucket, fileReference.File, dataReader, int64(len(byteData)), minio.PutObjectOptions{})
 	if err != nil {
-		u.logger.Errorf("Error uploading file [%s] [%v]", objectName, err)
+		u.logger.Errorf("Error uploading file [%s] [%v]", fileReference.File, err)
+		return err
 	}
 
-	u.logger.Infof("Successfully uploaded %s of size %d\n", objectName, n)
+	u.logger.Infof("Successfully uploaded %s of size %d\n", fileReference.File, n)
 
 	return err
 

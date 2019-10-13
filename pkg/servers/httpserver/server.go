@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,7 +11,9 @@ import (
 	"time"
 
 	"deployment-endpoint/pkg/server"
+	"deployment-endpoint/swagger"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
@@ -19,6 +22,10 @@ const (
 	// HTTP headers used by the API.
 	hdrContentLength = "Content-Length"
 	hdrContentType   = "Content-Type"
+)
+
+var (
+	healthy bool
 )
 
 type Server server.T
@@ -30,10 +37,26 @@ func (s *Server) getRouter(deploymentOwnerUserName string, deploymentName string
 
 	r.HandleFunc("/topics", s.topicsHandler).Methods("GET")
 
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		if healthy {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(500)
+		}
+
+	})
+
 	return r
 }
 
 func (s *Server) Start(configPath string) {
+
+	go func() {
+		for h := range s.HealthyChan {
+			healthy = h
+		}
+	}()
 
 	deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
 	deploymentName := s.Config.GetString("deploymentName")
@@ -50,13 +73,14 @@ func (s *Server) Start(configPath string) {
 		s.Logger.Infof("Listening for HTTP requests on %s", addr)
 		err := httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
+			s.HealthyChan <- false
 			s.Logger.Errorf("Unable to start http server: %v", err)
-		} else {
 		}
 	}()
 
 	s.Wg.Add(1)
 	s.Logger.Info("Registered HTTP server in servers pool")
+	s.HealthyChan <- true
 	s.Wg.Wait()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -72,8 +96,21 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 	endpointOutput := mux.Vars(r)["endpointOutput"]
 
-	if s.EndpointOutputs[endpointOutput] == nil {
-		http.Error(w, fmt.Sprintf("Endpoint Output [%s] was not found", endpointOutput), http.StatusNotFound)
+	if _, ok := s.EndpointOutputs[endpointOutput]; !ok {
+		// Create error response
+		errMsg := swagger.ApiBadRequestResponse{
+			StatusCode: 400,
+			Message:    "Failed to run endpoint",
+			Errors: []swagger.ErrorModel{
+				swagger.ErrorModel{
+					ErrorCode: 50002,
+					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointOutput),
+				},
+			},
+		}
+		errBytes, _ := json.Marshal(errMsg)
+		http.Error(w, string(errBytes), http.StatusBadRequest)
+		return
 	}
 
 	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
@@ -82,16 +119,67 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		endpointOutput))
 
 	if msg, err = readMsg(r); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// Create error response
+		errMsg := swagger.ApiBadRequestResponse{
+			StatusCode: 400,
+			Message:    "Failed to run endpoint",
+			Errors: []swagger.ErrorModel{
+				swagger.ErrorModel{
+					ErrorCode: 50001,
+					Message:   fmt.Sprintf("Error reading request body. %s", err.Error()),
+				},
+			},
+		}
+		errBytes, _ := json.Marshal(errMsg)
+		http.Error(w, string(errBytes), http.StatusBadRequest)
 		return
 	}
 
 	// Get the message type for this output
 	if s.EndpointOutputs[endpointOutput].MessageDataType == "FileReference" {
-		// TODO: Upload the file to the s3 bucket and generate file reference
+
+		// Upload the file to storage and generate file reference
+		// Create file uuid
+		fileName := uuid.New()
+		bucketName := fmt.Sprintf("%s.%s",
+			strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
+			strings.ToLower(s.Config.GetString("deploymentName")))
+		fileReference := swagger.FileReference{
+			Host:   s.Uploader.Config.Host,
+			Bucket: bucketName,
+			File:   fileName.String(),
+		}
+		err := s.Uploader.Upload(fileReference, msg)
+		if err != nil {
+			// Create error message
+			errMsg := swagger.ApiBadRequestResponse{
+				StatusCode: 400,
+				Message:    "Failed to run endpoint",
+				Errors: []swagger.ErrorModel{
+					swagger.ErrorModel{
+						ErrorCode: 50003,
+						Message:   fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File),
+					},
+					swagger.ErrorModel{
+						ErrorCode: 50004,
+						Message:   fmt.Sprintf("Storage error [%s]", err.Error()),
+					},
+				},
+			}
+			errBytes, _ := json.Marshal(errMsg)
+			s.HealthyChan <- false
+			http.Error(w, string(errBytes), http.StatusBadRequest)
+			return
+		}
+
+		jsonBytes, _ := json.Marshal(fileReference)
+
+		s.Producer.Send(topic, jsonBytes)
 
 	} else {
+
 		s.Producer.Send(topic, msg)
+
 	}
 
 }
@@ -127,7 +215,19 @@ func (s *Server) topicsHandler(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Infof("Pulling TOPICS")
 	topics, err := s.Producer.ListTopics()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// Create error message
+		errMsg := swagger.ApiBadRequestResponse{
+			StatusCode: 400,
+			Message:    "Failed to get topics",
+			Errors: []swagger.ErrorModel{
+				swagger.ErrorModel{
+					ErrorCode: 50005,
+					Message:   fmt.Sprintf("Error getting topics [%s]", err),
+				},
+			},
+		}
+		errBytes, _ := json.Marshal(errMsg)
+		http.Error(w, string(errBytes), http.StatusInternalServerError)
 		return
 	}
 	fmt.Fprint(w, strings.Join(topics, "\n"))

@@ -19,6 +19,7 @@ func (p *T) setCBState(name string, from, to gobreaker.State) {
 	case gobreaker.StateHalfOpen:
 		cbState.With(prometheus.Labels{"name": name, "state": "half"}).Inc()
 	case gobreaker.StateOpen:
+		p.HealthyChan <- false
 		cbState.With(prometheus.Labels{"name": name, "state": "open"}).Inc()
 	}
 	p.Logger.Infof("%s CB state changed from: [%s] to: [%s]", name, from, to)

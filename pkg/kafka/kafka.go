@@ -53,6 +53,7 @@ type EventWrapper struct {
 }
 
 type T struct {
+	HealthyChan      chan bool
 	producers        map[string]*ProducerWrapper
 	activeProducerID string
 	Logger           logger.Logger

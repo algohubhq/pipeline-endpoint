@@ -20,9 +20,10 @@ type I interface {
 }
 
 type T struct {
+	HealthyChan     chan bool
 	Producer        kafka.I
-	Uploader        uploader.I
-	EndpointOutputs map[string]*config.EndpointOutput
+	Uploader        *uploader.Uploader
+	EndpointOutputs map[string]config.EndpointOutput
 	Logger          logger.Logger
 	Prometheus      *prometheus.Registry
 	Config          *viper.Viper

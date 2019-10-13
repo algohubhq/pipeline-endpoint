@@ -2,15 +2,18 @@ package grpcserver
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"strings"
 
 	"deployment-endpoint/pkg/server"
+	"deployment-endpoint/swagger"
 
 	pb "deployment-endpoint/pkg/pb"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 )
 
@@ -52,7 +55,9 @@ func (s *Server) Start(configPath string) {
 	s.Logger.Infof("Listening for GRPC requests on %s", addr)
 
 	go func() {
+		s.HealthyChan <- true
 		if err = grpcSrv.Serve(lis); err != nil {
+			s.HealthyChan <- false
 			s.Logger.Fatalf("failed to serve: %v", err)
 		}
 	}()
@@ -81,6 +86,7 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 
 		deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
 		deploymentName := s.Config.GetString("deploymentName")
+		endpointOutput := req.EndpointOutput
 
 		if deploymentOwnerUserName != req.DeploymentOwnerUserName ||
 			deploymentName != req.DeploymentName {
@@ -95,13 +101,44 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 			deploymentName,
 			req.EndpointOutput))
 
-		s.Producer.Send(topic, req.Message)
+		// Get the message type for this output
+		if s.EndpointOutputs[endpointOutput].MessageDataType == "FileReference" {
+			// Upload the file to storage and generate file reference
+			// Create file uuid
+			fileName := uuid.New()
+			bucketName := fmt.Sprintf("%s.%s",
+				strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
+				strings.ToLower(s.Config.GetString("deploymentName")))
+			fileReference := swagger.FileReference{
+				Host:   s.Uploader.Config.Host,
+				Bucket: bucketName,
+				File:   fileName.String(),
+			}
+			err := s.Uploader.Upload(fileReference, req.Message)
+			if err != nil {
+				s.Logger.Errorf("Could not upload message to storage: %v. Error: %s", fileReference, err)
+				return err
+			}
+
+			jsonBytes, jsonErr := json.Marshal(fileReference)
+			if jsonErr != nil {
+				s.Logger.Errorf("Error serializing the file reference: %v. Error: %s", fileReference, err)
+				return err
+			}
+
+			s.Producer.Send(topic, jsonBytes)
+
+		} else {
+			s.Producer.Send(topic, req.Message)
+		}
+
 		res = &pb.ProdRs{StreamOffset: req.StreamOffset}
 		err = stream.Send(res)
 		if err != nil {
 			s.Logger.Errorf("Could not stream (GRPC) to the client: %s", err)
 			return err
 		}
+
 	}
 }
 

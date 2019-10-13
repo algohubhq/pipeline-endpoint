@@ -58,6 +58,7 @@ var (
 )
 
 func main() {
+
 	var err error
 	var configPathName string
 	flag.StringVar(&configPathName, "config", "", "Configuration file to load")
@@ -86,10 +87,23 @@ func main() {
 	// metrics
 	s.Prometheus = prometheus.NewRegistry()
 
+	// endpoint outputs config
+	var endpointOutputs []config.EndpointOutput
+	err = s.Config.UnmarshalKey("outputs", &endpointOutputs)
+	if err != nil {
+		s.Logger.Errorf("Unable to deserialize endpoint outputs [%v]", err)
+	}
+
+	outputMap := make(map[string]config.EndpointOutput)
+	for _, output := range endpointOutputs {
+		outputMap[output.Name] = output
+	}
+	s.EndpointOutputs = outputMap
+
 	// servers
 	kafkaParams, err := kafka.Viper2Config(s.Config)
 	if err != nil {
-		return
+		os.Exit(1)
 	}
 
 	// separate config read for wal. This is to be refactored
@@ -99,25 +113,32 @@ func main() {
 	if configData != "" {
 		if err := json.Unmarshal([]byte(configData), &anotherConfig); err != nil {
 			s.Logger.Fatalf("error: %v", err)
+			os.Exit(1)
 		}
 	}
 
 	// Create the uploader
 	uploaderConfig := uploader.UploaderConfig(s.Config, s.Logger)
 	if err != nil {
-		return
+		os.Exit(1)
 	}
 
 	uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger)
+	if err != nil {
+		os.Exit(1)
+	}
+
 	s.Uploader = uploader
 
 	producer := &kafka.T{}
+	producer.HealthyChan = make(chan bool)
 	producer.Logger = s.Logger
 	producer.Config = kafka.ProducerConfig(s.Config)
 	producer.Config.Wal = anotherConfig.Producer.Wal
 	err = producer.Init(&kafkaParams, s.Prometheus)
 	if err != nil {
 		s.Logger.Fatal("Could not initialize producer")
+		os.Exit(1)
 	}
 
 	s.Producer = producer

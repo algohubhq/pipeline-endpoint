@@ -1,10 +1,8 @@
 package servers
 
 import (
-	"fmt"
 	"sync"
 
-	"deployment-endpoint/pkg/config"
 	"deployment-endpoint/pkg/server"
 	"deployment-endpoint/pkg/servers/grpcserver"
 	"deployment-endpoint/pkg/servers/httpserver"
@@ -24,25 +22,12 @@ type T struct {
 
 func (s *T) Start() {
 
-	var endpointOutputs []config.EndpointOutput
-	err := s.Config.UnmarshalKey("outputs", &endpointOutputs)
-	if err != nil {
-		s.Logger.Errorf("Unable to deserialize endpoint outputs [%v]", err)
-	}
-
-	outputMap := make(map[string]*config.EndpointOutput)
-	for _, output := range endpointOutputs {
-		outputMap[output.Name] = &output
-	}
-
-	test := s.Config.GetStringMap("outputs")
-	fmt.Printf("%v", test)
-
 	if s.Config.IsSet(monitoringPath + ".listen") {
 		monitSrv := &monitoring.Server{
+			HealthyChan:     make(chan bool),
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
-			EndpointOutputs: outputMap,
+			EndpointOutputs: s.EndpointOutputs,
 			Config:          s.Config,
 			Prometheus:      s.Prometheus,
 			Logger:          s.Logger,
@@ -53,9 +38,10 @@ func (s *T) Start() {
 	}
 	if s.Config.IsSet(httpPath + ".listen") {
 		httpSrv := &httpserver.Server{
+			HealthyChan:     make(chan bool),
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
-			EndpointOutputs: outputMap,
+			EndpointOutputs: s.EndpointOutputs,
 			Config:          s.Config,
 			Prometheus:      s.Prometheus,
 			Logger:          s.Logger,
@@ -67,10 +53,11 @@ func (s *T) Start() {
 	}
 	if s.Config.IsSet(grpcPath + ".listen") {
 		grpcSrv := &grpcserver.Server{
+			HealthyChan:     make(chan bool),
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
 			Config:          s.Config,
-			EndpointOutputs: outputMap,
+			EndpointOutputs: s.EndpointOutputs,
 			Prometheus:      s.Prometheus,
 			Logger:          s.Logger,
 			Wg:              new(sync.WaitGroup),
