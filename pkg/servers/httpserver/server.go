@@ -80,7 +80,6 @@ func (s *Server) Start(configPath string) {
 
 	s.Wg.Add(1)
 	s.Logger.Info("Registered HTTP server in servers pool")
-	s.HealthyChan <- true
 	s.Wg.Wait()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -167,7 +166,6 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 				},
 			}
 			errBytes, _ := json.Marshal(errMsg)
-			s.HealthyChan <- false
 			http.Error(w, string(errBytes), http.StatusBadRequest)
 			return
 		}

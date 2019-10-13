@@ -24,7 +24,7 @@ func (s *T) Start() {
 
 	if s.Config.IsSet(monitoringPath + ".listen") {
 		monitSrv := &monitoring.Server{
-			HealthyChan:     make(chan bool),
+			HealthyChan:     s.HealthyChan,
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
 			EndpointOutputs: s.EndpointOutputs,
@@ -38,7 +38,7 @@ func (s *T) Start() {
 	}
 	if s.Config.IsSet(httpPath + ".listen") {
 		httpSrv := &httpserver.Server{
-			HealthyChan:     make(chan bool),
+			HealthyChan:     s.HealthyChan,
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
 			EndpointOutputs: s.EndpointOutputs,
@@ -53,7 +53,7 @@ func (s *T) Start() {
 	}
 	if s.Config.IsSet(grpcPath + ".listen") {
 		grpcSrv := &grpcserver.Server{
-			HealthyChan:     make(chan bool),
+			HealthyChan:     s.HealthyChan,
 			Producer:        s.Producer,
 			Uploader:        s.Uploader,
 			Config:          s.Config,

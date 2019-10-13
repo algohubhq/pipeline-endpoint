@@ -55,7 +55,6 @@ func (s *Server) Start(configPath string) {
 	s.Logger.Infof("Listening for GRPC requests on %s", addr)
 
 	go func() {
-		s.HealthyChan <- true
 		if err = grpcSrv.Serve(lis); err != nil {
 			s.HealthyChan <- false
 			s.Logger.Fatalf("failed to serve: %v", err)

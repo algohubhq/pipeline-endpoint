@@ -59,6 +59,7 @@ var (
 
 func main() {
 
+	healthyChan := make(chan bool)
 	var err error
 	var configPathName string
 	flag.StringVar(&configPathName, "config", "", "Configuration file to load")
@@ -69,6 +70,8 @@ func main() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGHUP)
 
 	s := new(servers.T)
+	// Health channel
+	s.HealthyChan = healthyChan
 	c := &config.T{
 		Filename:  configPathName,
 		EnvPrefix: "EP",
@@ -123,15 +126,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger)
+	uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger, healthyChan)
 	if err != nil {
 		os.Exit(1)
 	}
+	uploader.HealthyChan = healthyChan
 
 	s.Uploader = uploader
 
 	producer := &kafka.T{}
-	producer.HealthyChan = make(chan bool)
+	producer.HealthyChan = healthyChan
 	producer.Logger = s.Logger
 	producer.Config = kafka.ProducerConfig(s.Config)
 	producer.Config.Wal = anotherConfig.Producer.Wal
@@ -143,6 +147,9 @@ func main() {
 
 	s.Producer = producer
 	s.Start()
+
+	healthyChan <- true
+
 	for {
 		signal := <-sig
 		switch signal {

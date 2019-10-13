@@ -12,12 +12,13 @@ import (
 )
 
 type Uploader struct {
-	Config *Config
-	logger logger.Logger
-	client *minio.Client
+	HealthyChan chan<- bool
+	Config      *Config
+	logger      logger.Logger
+	client      *minio.Client
 }
 
-func New(conf *Config, prom *prometheus.Registry, logger logger.Logger) (*Uploader, error) {
+func New(conf *Config, prom *prometheus.Registry, logger logger.Logger, healthyChan chan<- bool) (*Uploader, error) {
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(conf.Host, conf.accessKeyID, conf.secretAccessKey, conf.useSSL)
@@ -42,9 +43,10 @@ func New(conf *Config, prom *prometheus.Registry, logger logger.Logger) (*Upload
 	}
 
 	uploader := &Uploader{
-		client: minioClient,
-		Config: conf,
-		logger: logger,
+		HealthyChan: healthyChan,
+		client:      minioClient,
+		Config:      conf,
+		logger:      logger,
 	}
 
 	return uploader, nil
@@ -59,6 +61,7 @@ func (u *Uploader) Upload(fileReference swagger.FileReference, byteData []byte) 
 	n, err := u.client.PutObject(fileReference.Bucket, fileReference.File, dataReader, int64(len(byteData)), minio.PutObjectOptions{})
 	if err != nil {
 		u.logger.Errorf("Error uploading file [%s] [%v]", fileReference.File, err)
+		u.HealthyChan <- false
 		return err
 	}
 
