@@ -22,6 +22,7 @@ const (
 	// HTTP headers used by the API.
 	hdrContentLength = "Content-Length"
 	hdrContentType   = "Content-Type"
+	pathEndpoint     = "endpointPath"
 )
 
 var (
@@ -33,7 +34,8 @@ type Server server.T
 func (s *Server) getRouter(deploymentOwnerUserName string, deploymentName string) http.Handler {
 	r := mux.NewRouter()
 
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{endpointOutput}", deploymentOwnerUserName, deploymentName), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", deploymentOwnerUserName, deploymentName, pathEndpoint), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{runId}", deploymentOwnerUserName, deploymentName, pathEndpoint), s.messageHandler)
 
 	r.HandleFunc("/topics", s.topicsHandler).Methods("GET")
 
@@ -93,9 +95,22 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	var msg []byte
 	var err error
 
-	endpointOutput := mux.Vars(r)["endpointOutput"]
+	endpointPath := mux.Vars(r)[pathEndpoint]
+	params := r.URL.Query()
+	contentType := r.Header.Get(hdrContentType)
+	runID := mux.Vars(r)["runId"]
 
-	if _, ok := s.EndpointOutputs[endpointOutput]; !ok {
+	headers := make(map[string][]byte)
+
+	if runID == "" {
+		runIDUuid := uuid.New()
+		runID = runIDUuid.String()
+	}
+
+	headers["endpointParams"] = []byte(params.Encode())
+	headers["contentType"] = []byte(contentType)
+
+	if _, ok := s.EndpointPaths[endpointPath]; !ok {
 		// Create error response
 		errMsg := swagger.ApiBadRequestResponse{
 			StatusCode: 400,
@@ -103,7 +118,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 			Errors: []swagger.ErrorModel{
 				swagger.ErrorModel{
 					ErrorCode: 50002,
-					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointOutput),
+					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath),
 				},
 			},
 		}
@@ -115,7 +130,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
 		s.Config.GetString("deploymentOwnerUserName"),
 		s.Config.GetString("deploymentName"),
-		endpointOutput))
+		endpointPath))
 
 	if msg, err = readMsg(r); err != nil {
 		// Create error response
@@ -135,7 +150,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the message type for this output
-	if s.EndpointOutputs[endpointOutput].MessageDataType == "FileReference" {
+	if s.EndpointPaths[endpointPath].MessageDataType == "FileReference" {
 
 		// Upload the file to storage and generate file reference
 		// Create file uuid
@@ -172,11 +187,11 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 		jsonBytes, _ := json.Marshal(fileReference)
 
-		s.Producer.Send(topic, jsonBytes)
+		s.Producer.Send(topic, headers, runID, jsonBytes)
 
 	} else {
 
-		s.Producer.Send(topic, msg)
+		s.Producer.Send(topic, headers, runID, msg)
 
 	}
 
@@ -184,28 +199,25 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 func readMsg(r *http.Request) ([]byte, error) {
 
-	contentType := r.Header.Get(hdrContentType)
-	if contentType == "text/plain" || contentType == "application/json" {
-		if _, ok := r.Header[hdrContentLength]; !ok {
-			return nil, errors.Errorf("missing %s header", hdrContentLength)
-		}
-		messageSizeStr := r.Header.Get(hdrContentLength)
-		msgSize, err := strconv.Atoi(messageSizeStr)
-		if err != nil {
-			return nil, errors.Errorf("invalid %s header: %s", hdrContentLength, messageSizeStr)
-		}
-		msg, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to read message")
-		}
-		if len(msg) != msgSize {
-			return nil, errors.Errorf("message size does not match %s: expected=%v, actual=%v",
-				hdrContentLength, msgSize, len(msg))
-		}
-		return msg, nil
-	}
+	// TODO: Validate content type matches the endpoint path config
 
-	return nil, errors.Errorf("unsupported content type %s", contentType)
+	if _, ok := r.Header[hdrContentLength]; !ok {
+		return nil, errors.Errorf("missing %s header", hdrContentLength)
+	}
+	messageSizeStr := r.Header.Get(hdrContentLength)
+	msgSize, err := strconv.Atoi(messageSizeStr)
+	if err != nil {
+		return nil, errors.Errorf("invalid %s header: %s", hdrContentLength, messageSizeStr)
+	}
+	msg, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read message")
+	}
+	if len(msg) != msgSize {
+		return nil, errors.Errorf("message size does not match %s: expected=%v, actual=%v",
+			hdrContentLength, msgSize, len(msg))
+	}
+	return msg, nil
 
 }
 

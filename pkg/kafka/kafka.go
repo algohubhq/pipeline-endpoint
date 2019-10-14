@@ -22,7 +22,7 @@ type I interface {
 	Init(*kafka.ConfigMap, *prometheus.Registry) error
 	ReSend()
 	ListTopics() ([]string, error)
-	Send(string, []byte)
+	Send(string, map[string][]byte, string, []byte)
 	QueueIsEmpty() bool
 	Shutdown()
 }
@@ -282,7 +282,7 @@ func (p *T) iterateLimit(limit int64) {
 			if p.cb.State() != gobreaker.StateOpen {
 				<-p.rateLimiter
 				if !p.inShutdown {
-					p.produce(r.Topic, r.Payload, FromWAL)
+					p.produce(r.Topic, r.Headers, r.Key, r.Payload, FromWAL)
 				}
 			} else {
 				p.Logger.Infof("We have got state change during retry, current state is %v, abort retry", p.cb.State())
@@ -307,9 +307,9 @@ func (p *T) ListTopics() ([]string, error) {
 	return ret, err
 }
 
-func (p *T) Send(topic string, message []byte) {
+func (p *T) Send(topic string, headers map[string][]byte, key string, message []byte) {
 	if p.cb.State() == gobreaker.StateClosed {
-		p.produce(topic, message, Direct)
+		p.produce(topic, headers, key, message, Direct)
 		if (p.Config.WalMode == Always && !p.isDisableWal(topic)) || p.isAlwaysWal(topic) {
 			p.Logger.Debugf("Storing message to topic: %s into WAL", topic)
 			p.wal.Set(topic, message)
@@ -321,16 +321,23 @@ func (p *T) Send(topic string, message []byte) {
 	}
 }
 
-func (p *T) produce(topic string, message []byte, opaque interface{}) {
+func (p *T) produce(topic string, headers map[string][]byte, key string, message []byte, opaque interface{}) {
 	p.Logger.Debugf("Sending to topic: [%s] message %s", topic, string(message))
 	pw := p.GetProducer()
+	// create the headers
+	var kHeaders []kafka.Header
+	for k, v := range headers {
+		kHeaders = append(kHeaders, kafka.Header{Key: k, Value: v})
+	}
 	pw.Producer.ProduceChannel() <- &kafka.Message{
 		TopicPartition: kafka.TopicPartition{
 			Topic:     &topic,
 			Partition: kafka.PartitionAny,
 		},
-		Value:  message,
-		Opaque: opaque,
+		Headers: kHeaders,
+		Key:     []byte(key),
+		Value:   message,
+		Opaque:  opaque,
 	}
 	if v, ok := opaque.(Source); ok && v == Direct {
 		atomic.AddInt64(&(pw.Transit), 1)

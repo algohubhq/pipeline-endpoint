@@ -2,6 +2,7 @@ package kafka_mock
 
 import (
 	"deployment-endpoint/pkg/kafka"
+
 	k "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/mock"
@@ -11,7 +12,7 @@ type MockedProducer struct {
 	mock.Mock
 }
 
-func (m *MockedProducer) Send(topic string, message []byte) {
+func (m *MockedProducer) Send(topic string, headers map[string][]byte, key string, message []byte) {
 	m.Called(topic, message)
 }
 func (m *MockedProducer) ListTopics() ([]string, error) {

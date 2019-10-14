@@ -1,6 +1,6 @@
 package config
 
-type EndpointOutput struct {
+type EndpointPath struct {
 	Name string `json:"name,omitempty"`
 
 	IsDefault bool `json:"isDefault,omitempty"`

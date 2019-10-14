@@ -17,12 +17,14 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sony/gobreaker"
 
 	"deployment-endpoint/pkg/config"
 	"deployment-endpoint/pkg/testproxy"
 	"deployment-endpoint/pkg/wal"
+
 	"github.com/optiopay/kafka/kafkatest"
 	"github.com/optiopay/kafka/proto"
 	"github.com/spf13/viper"
@@ -213,15 +215,15 @@ func TestLifeCycle(t *testing.T) {
 
 	assert.Equal(int64(0), p.wal.MessageCount(), "WAL should be empty")
 	assert.Equal(gobreaker.StateClosed, p.cb.State())
-	p.Send(testTopic, []byte("test message 1"))
-	p.Send(testTopic, []byte("test message 2"))
+	p.Send(testTopic, nil, uuid.New().String(), []byte("test message 1"))
+	p.Send(testTopic, nil, uuid.New().String(), []byte("test message 2"))
 	assert.Equal(int64(0), p.wal.MessageCount(), "WAL still should be empty")
 
 	fmt.Println("Sleep to flush librdkafka queue")
 	time.Sleep(time.Second * 5)
 	fmt.Println("Closing proxy")
 	proxy.Close()
-	p.Send(testTopic, []byte("first message to fail"))
+	p.Send(testTopic, nil, uuid.New().String(), []byte("first message to fail"))
 	fmt.Println("Going to sleep for a while to let kafka server close")
 	time.Sleep(time.Second * 5)
 
@@ -229,7 +231,7 @@ func TestLifeCycle(t *testing.T) {
 	for i := 1; uint32(i) <= p.Config.CBMaxFailures; i++ {
 		m := []byte(fmt.Sprintf("message for WAL: %d\n", i))
 		fmt.Printf("Sending test message: %s", m)
-		p.Send(testTopic, m)
+		p.Send(testTopic, nil, uuid.New().String(), m)
 	}
 	assert.True(p.wal.MessageCount() >= int64(p.Config.CBMaxRequests), "Messages have to hit wal already")
 
@@ -241,7 +243,7 @@ func TestLifeCycle(t *testing.T) {
 	}
 	assert.Equal(gobreaker.StateClosed, p.cb.State(), "Circuit breaker should be closed (green light)")
 	fmt.Println("Send extra message 3")
-	p.Send(testTopic, []byte("test message 3"))
+	p.Send(testTopic, nil, uuid.New().String(), []byte("test message 3"))
 	assert.True(p.wal.MessageCount() >= int64(p.Config.CBMaxRequests))
 
 	p.GetProducer().Producer.Close()
@@ -417,7 +419,7 @@ func TestTLS(t *testing.T) {
 	timeout := 5 * time.Second
 	/////////////////////////
 	m := []byte("test message to go through")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	assert.Equalf(m, helperGetOutput(timeout), "Initial looped message should match within %s", timeout)
 	time.Sleep(clientCertExpireAfter)
 	proxy.Close()
@@ -425,14 +427,14 @@ func TestTLS(t *testing.T) {
 	if p.cb.State() != gobreaker.StateClosed {
 		go p.cbClose()
 		for i := 1; uint32(i) <= p.Config.CBMaxRequests; i++ {
-			p.Send(testTopic, []byte(fmt.Sprintf("push cb close req #%d", i)))
+			p.Send(testTopic, nil, uuid.New().String(), []byte(fmt.Sprintf("push cb close req #%d", i)))
 		}
 		helperDrainOutChan(3 * time.Second)
 	}
 	timeout = 5 * time.Second
 	/////////////////////////
 	m = []byte("This message should NOT loop")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	timeout = 10 * time.Second
 	out := helperGetOutput(timeout)
 	assert.Nilf(out, "No message should reach test kafka broker since our client auth cert has to be expired: %s", out)
@@ -454,20 +456,20 @@ func TestTLS(t *testing.T) {
 	if p.cb.State() != gobreaker.StateClosed {
 		p.cbClose()
 		for i := 1; uint32(i) <= p.Config.CBMaxRequests; i++ {
-			p.Send(testTopic, []byte(fmt.Sprintf("another push cb close message #%d", i)))
+			p.Send(testTopic, nil, uuid.New().String(), []byte(fmt.Sprintf("another push cb close message #%d", i)))
 		}
 		helperDrainOutChan(3 * time.Second)
 	}
 	helperDrainOutChan(3 * time.Second)
 	m = []byte("+++ A new message to go through 1")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	timeout = 5 * time.Second
 	assert.Equalf(m, helperGetOutput(timeout), "New producer looped message should match within %s", timeout)
 	kp, err = kafka.NewProducer(&configMap)
 	assert.NoError(err, "Could not create producer")
 	p.AddActiveProducer(kp, &configMap)
 	m = []byte("+++ A new message to go through 2")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	assert.Equalf(m, helperGetOutput(timeout), "Yet another new producer looped message should match within %s", timeout)
 	p.GetProducer().Producer.Close()
 	proxy.Close()
@@ -513,7 +515,7 @@ func TestAddingActiveProducer(t *testing.T) {
 	assert.Equal(uint(1), p.GetActiveProducerID(), "ActiveProducerID should be 1")
 	helperDrainOutChan(3 * time.Second)
 	m := []byte("another test message 1")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	assert.Equal(m, helperGetOutput(5*time.Second), "Looped message should match")
 
 	kp, err := kafka.NewProducer(&configMap)
@@ -522,7 +524,7 @@ func TestAddingActiveProducer(t *testing.T) {
 	assert.Equal(2, p.GetProducersCount(), "There should be 2 producers now")
 	assert.Equal(uint(2), p.GetActiveProducerID(), "ActiveProducerID should be 2")
 	m = []byte("another test message 2")
-	p.Send(testTopic, m)
+	p.Send(testTopic, nil, uuid.New().String(), m)
 	assert.Equal(m, helperGetOutput(5*time.Second), "Looped message though new producer should match")
 	time.Sleep(oldProducerKillTimeout)
 	assert.Equal(1, p.GetProducersCount(), "Old producer should be either stopped or killed already")

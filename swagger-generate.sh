@@ -7,6 +7,7 @@ mkdir -p ./swagger/
 cp ./algorun-go-client/file_reference.go ./swagger/
 cp ./algorun-go-client/api_bad_request_response.go ./swagger/
 cp ./algorun-go-client/error_model.go ./swagger/
+cp ./algorun-go-client/endpoint_path.go ./swagger/
 
 rm -rf ./algorun-go-client/
 

@@ -10,8 +10,10 @@ message Record {
   google.protobuf.Timestamp timestamp = 2;
   Status status = 3;
   string topic = 4;
-  string cluster = 5;
-  bytes payload = 6;
+  map<string, bytes> headers = 5;
+  string cluster = 6;
+  string key = 7;
+  bytes payload = 8;
 }
 
 enum Status {

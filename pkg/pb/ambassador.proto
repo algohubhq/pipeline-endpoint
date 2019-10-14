@@ -15,9 +15,12 @@ message ListTopicsResponse {
 message ProdRq {
     string deploymentOwnerUserName = 1;
     string deploymentName = 2;
-    string endpointOutput = 3;
-    bytes message = 4;
-    uint64 streamOffset = 5;
+    string endpointPath = 3;
+    string runID = 4;
+    string contentType = 5;
+    bytes message = 6;
+    map<string, string> parameters = 7;
+    uint64 streamOffset = 8;
 }
 
 message ProdRs {

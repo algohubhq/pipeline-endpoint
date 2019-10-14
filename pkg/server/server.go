@@ -23,7 +23,7 @@ type T struct {
 	HealthyChan     chan bool
 	Producer        kafka.I
 	Uploader        *uploader.Uploader
-	EndpointOutputs map[string]config.EndpointOutput
+	EndpointPaths map[string]config.EndpointPath
 	Logger          logger.Logger
 	Prometheus      *prometheus.Registry
 	Config          *viper.Viper

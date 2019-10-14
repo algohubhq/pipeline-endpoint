@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/url"
 	"strings"
 
 	"deployment-endpoint/pkg/server"
@@ -85,7 +86,25 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 
 		deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
 		deploymentName := s.Config.GetString("deploymentName")
-		endpointOutput := req.EndpointOutput
+		endpointPath := req.EndpointPath
+		runID := req.RunID
+		contentType := req.ContentType
+
+		headers := make(map[string][]byte)
+
+		if runID == "" {
+			runIDUuid := uuid.New()
+			runID = runIDUuid.String()
+		}
+
+		// encode the parameters
+		urlValues := url.Values{}
+		for k, v := range req.Parameters {
+			urlValues.Set(k, v)
+		}
+
+		headers["contentType"] = []byte(contentType)
+		headers["endpointParams"] = []byte(urlValues.Encode())
 
 		if deploymentOwnerUserName != req.DeploymentOwnerUserName ||
 			deploymentName != req.DeploymentName {
@@ -98,10 +117,10 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 		topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
 			deploymentOwnerUserName,
 			deploymentName,
-			req.EndpointOutput))
+			req.EndpointPath))
 
 		// Get the message type for this output
-		if s.EndpointOutputs[endpointOutput].MessageDataType == "FileReference" {
+		if s.EndpointPaths[endpointPath].MessageDataType == "FileReference" {
 			// Upload the file to storage and generate file reference
 			// Create file uuid
 			fileName := uuid.New()
@@ -125,10 +144,10 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 				return err
 			}
 
-			s.Producer.Send(topic, jsonBytes)
+			s.Producer.Send(topic, headers, runID, jsonBytes)
 
 		} else {
-			s.Producer.Send(topic, req.Message)
+			s.Producer.Send(topic, headers, runID, req.Message)
 		}
 
 		res = &pb.ProdRs{StreamOffset: req.StreamOffset}

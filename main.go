@@ -91,17 +91,17 @@ func main() {
 	s.Prometheus = prometheus.NewRegistry()
 
 	// endpoint outputs config
-	var endpointOutputs []config.EndpointOutput
-	err = s.Config.UnmarshalKey("outputs", &endpointOutputs)
+	var endpointPaths []config.EndpointPath
+	err = s.Config.UnmarshalKey("outputs", &endpointPaths)
 	if err != nil {
 		s.Logger.Errorf("Unable to deserialize endpoint outputs [%v]", err)
 	}
 
-	outputMap := make(map[string]config.EndpointOutput)
-	for _, output := range endpointOutputs {
+	outputMap := make(map[string]config.EndpointPath)
+	for _, output := range endpointPaths {
 		outputMap[output.Name] = output
 	}
-	s.EndpointOutputs = outputMap
+	s.EndpointPaths = outputMap
 
 	// servers
 	kafkaParams, err := kafka.Viper2Config(s.Config)
