@@ -54,17 +54,22 @@ func ProducerConfig(c *viper.Viper) *Config {
 }
 
 func Viper2Config(c *viper.Viper) (kafka.ConfigMap, error) {
+
 	sub := c.Sub("kafka")
-	var cm, t kafka.ConfigMap
+
+	var cm, flatConfig kafka.ConfigMap
+
+	if sub.IsSet("params") {
+		subParams := sub.Sub("params")
+
+		err := subParams.Unmarshal(&cm)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var brokers string
-	err := sub.Unmarshal(&cm)
-	if err != nil {
-		return nil, err
-	}
-	err = sub.Unmarshal(&t)
-	if err != nil {
-		return nil, err
-	}
+
 	// explicitly set bootstrap.servers has priority over brokers config
 	if sub.IsSet("bootstrap.servers") {
 		brokers = sub.GetString("bootstrap.servers")
@@ -76,15 +81,17 @@ func Viper2Config(c *viper.Viper) (kafka.ConfigMap, error) {
 	flatten["bootstrap.servers"] = brokers
 
 	// TODO: I believe it is possible to simplify this part, but so far it is 2 loops.
+	flatConfig = make(kafka.ConfigMap)
 	for k, v := range flatten {
-		cm[k] = v
+		flatConfig[k] = v
 	}
 
 	// cleanup the raw data
-	for k := range t {
-		delete(cm, k)
-	}
-	return cm, nil
+	// for k := range t {
+	// 	delete(cm, k)
+	// }
+
+	return flatConfig, nil
 }
 
 func KafkaParamsPathExists(kafkaParams *kafka.ConfigMap, path string) bool {
