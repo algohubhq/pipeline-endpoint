@@ -92,9 +92,9 @@ func main() {
 
 	// endpoint outputs config
 	var endpointPaths []config.EndpointPath
-	err = s.Config.UnmarshalKey("outputs", &endpointPaths)
+	err = s.Config.UnmarshalKey("paths", &endpointPaths)
 	if err != nil {
-		s.Logger.Errorf("Unable to deserialize endpoint outputs [%v]", err)
+		s.Logger.Errorf("Unable to deserialize endpoint paths [%v]", err)
 	}
 
 	outputMap := make(map[string]config.EndpointPath)
