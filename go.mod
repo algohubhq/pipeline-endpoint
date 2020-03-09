@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/anchorfree/data-go v0.0.0-20190515143140-edabe141ac15
-	github.com/confluentinc/confluent-kafka-go v1.0.0
+	github.com/confluentinc/confluent-kafka-go v1.3.0
 	github.com/dgraph-io/badger v2.0.0-rc2+incompatible
 	github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 // indirect
 	github.com/go-logr/logr v0.1.0 // indirect
@@ -27,8 +27,5 @@ require (
 	github.com/valyala/fastjson v1.4.1
 	go.uber.org/ratelimit v0.0.0-20180316092928-c15da0234277 // indirect
 	go.uber.org/zap v1.9.1
-	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
-	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	google.golang.org/grpc v1.20.1
-	gopkg.in/yaml.v2 v2.2.2
 )
