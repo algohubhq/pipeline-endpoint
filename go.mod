@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/anchorfree/data-go v0.0.0-20190515143140-edabe141ac15
-	github.com/confluentinc/confluent-kafka-go v1.3.0
+	github.com/confluentinc/confluent-kafka-go v1.1.0
 	github.com/dgraph-io/badger v2.0.0-rc2+incompatible
 	github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 // indirect
 	github.com/go-logr/logr v0.1.0 // indirect
