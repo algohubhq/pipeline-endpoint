@@ -30,19 +30,4 @@ RUN apk update && \
       ca-certificates && \
       rm -rf /var/cache/apk/*
 
-# RUN apt-get update \
-#  && apt-get install -y \
-#     curl \
-#     software-properties-common \
-#     python-software-properties \
-#  && curl -L https://packages.confluent.io/deb/5.2/archive.key | apt-key add - \
-#  && add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.2 stable main" \
-#  && apt-get install -y \
-#     apt-transport-https \
-#  && apt-get update \
-#  && apt install -y \
-#     librdkafka1 \
-#     librdkafka-dev \
-#  && rm -rf /var/lib/apt/lists/*
-
 COPY --from=builder /go/bin/deployment-endpoint /bin/deployment-endpoint
