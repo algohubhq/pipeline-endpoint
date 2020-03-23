@@ -25,7 +25,9 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/valyala/fastjson v1.4.1
+	github.com/xorcare/pointer v1.1.0 // indirect
 	go.uber.org/ratelimit v0.0.0-20180316092928-c15da0234277 // indirect
 	go.uber.org/zap v1.9.1
 	google.golang.org/grpc v1.20.1
+	k8s.io/utils v0.0.0-20200322164244-327a8059b905
 )

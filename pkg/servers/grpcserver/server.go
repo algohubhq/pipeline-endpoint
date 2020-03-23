@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
+	"deployment-endpoint/openapi"
 	"deployment-endpoint/pkg/server"
-	"deployment-endpoint/swagger"
 
 	pb "deployment-endpoint/pkg/pb"
 
@@ -127,7 +127,7 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 			bucketName := fmt.Sprintf("%s.%s",
 				strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
 				strings.ToLower(s.Config.GetString("deploymentName")))
-			fileReference := swagger.FileReference{
+			fileReference := openapi.FileReference{
 				Host:   s.Uploader.Config.Host,
 				Bucket: bucketName,
 				File:   fileName.String(),

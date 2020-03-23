@@ -10,12 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"deployment-endpoint/openapi"
 	"deployment-endpoint/pkg/server"
-	"deployment-endpoint/swagger"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"k8s.io/utils/pointer"
 )
 
 const (
@@ -112,13 +113,13 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := s.EndpointPaths[endpointPath]; !ok {
 		// Create error response
-		errMsg := swagger.ApiBadRequestResponse{
+		errMsg := openapi.ApiBadRequestResponse{
 			StatusCode: 400,
 			Message:    "Failed to run endpoint",
-			Errors: []swagger.ErrorModel{
-				swagger.ErrorModel{
+			Errors: []openapi.ErrorModel{
+				openapi.ErrorModel{
 					ErrorCode: 50002,
-					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath),
+					Message:   pointer.StringPtr(fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath)),
 				},
 			},
 		}
@@ -134,13 +135,13 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if msg, err = readMsg(r); err != nil {
 		// Create error response
-		errMsg := swagger.ApiBadRequestResponse{
+		errMsg := openapi.ApiBadRequestResponse{
 			StatusCode: 400,
 			Message:    "Failed to run endpoint",
-			Errors: []swagger.ErrorModel{
-				swagger.ErrorModel{
+			Errors: []openapi.ErrorModel{
+				openapi.ErrorModel{
 					ErrorCode: 50001,
-					Message:   fmt.Sprintf("Error reading request body. %s", err.Error()),
+					Message:   pointer.StringPtr(fmt.Sprintf("Error reading request body. %s", err.Error())),
 				},
 			},
 		}
@@ -158,7 +159,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		bucketName := fmt.Sprintf("%s.%s",
 			strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
 			strings.ToLower(s.Config.GetString("deploymentName")))
-		fileReference := swagger.FileReference{
+		fileReference := openapi.FileReference{
 			Host:   s.Uploader.Config.Host,
 			Bucket: bucketName,
 			File:   fileName.String(),
@@ -166,17 +167,17 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		err := s.Uploader.Upload(fileReference, msg)
 		if err != nil {
 			// Create error message
-			errMsg := swagger.ApiBadRequestResponse{
+			errMsg := openapi.ApiBadRequestResponse{
 				StatusCode: 400,
 				Message:    "Failed to run endpoint",
-				Errors: []swagger.ErrorModel{
-					swagger.ErrorModel{
+				Errors: []openapi.ErrorModel{
+					openapi.ErrorModel{
 						ErrorCode: 50003,
-						Message:   fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File),
+						Message:   pointer.StringPtr(fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File)),
 					},
-					swagger.ErrorModel{
+					openapi.ErrorModel{
 						ErrorCode: 50004,
-						Message:   fmt.Sprintf("Storage error [%s]", err.Error()),
+						Message:   pointer.StringPtr(fmt.Sprintf("Storage error [%s]", err.Error())),
 					},
 				},
 			}
@@ -226,13 +227,13 @@ func (s *Server) topicsHandler(w http.ResponseWriter, r *http.Request) {
 	topics, err := s.Producer.ListTopics()
 	if err != nil {
 		// Create error message
-		errMsg := swagger.ApiBadRequestResponse{
+		errMsg := openapi.ApiBadRequestResponse{
 			StatusCode: 400,
 			Message:    "Failed to get topics",
-			Errors: []swagger.ErrorModel{
-				swagger.ErrorModel{
+			Errors: []openapi.ErrorModel{
+				openapi.ErrorModel{
 					ErrorCode: 50005,
-					Message:   fmt.Sprintf("Error getting topics [%s]", err),
+					Message:   pointer.StringPtr(fmt.Sprintf("Error getting topics [%s]", err)),
 				},
 			},
 		}

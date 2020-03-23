@@ -2,8 +2,8 @@ package uploader
 
 import (
 	"bytes"
+	"deployment-endpoint/openapi"
 	"deployment-endpoint/pkg/logger"
-	"deployment-endpoint/swagger"
 	"fmt"
 	"strings"
 
@@ -53,7 +53,7 @@ func New(conf *Config, prom *prometheus.Registry, logger logger.Logger, healthyC
 
 }
 
-func (u *Uploader) Upload(fileReference swagger.FileReference, byteData []byte) error {
+func (u *Uploader) Upload(fileReference openapi.FileReference, byteData []byte) error {
 
 	dataReader := bytes.NewReader(byteData)
 
