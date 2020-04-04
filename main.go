@@ -140,6 +140,7 @@ func main() {
 	producer.Config = kafka.ProducerConfig(s.Config)
 	producer.Config.Wal = anotherConfig.Producer.Wal
 	err = producer.Init(&kafkaParams, s.Prometheus)
+	defer producer.CloseWalDB()
 	if err != nil {
 		s.Logger.Fatal("Could not initialize producer")
 		os.Exit(1)

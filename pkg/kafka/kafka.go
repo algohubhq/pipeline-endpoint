@@ -472,3 +472,7 @@ func (p *T) Shutdown() {
 	p.Logger.Warn("Got shutdown signal, entering lame duck mode")
 	p.inShutdown = true
 }
+
+func (p *T) CloseWalDB() error {
+	return p.wal.Close()
+}

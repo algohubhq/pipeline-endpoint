@@ -8,14 +8,14 @@ import (
 	"deployment-endpoint/pkg/logger"
 	"deployment-endpoint/pkg/wal/pb"
 
-	"github.com/dgraph-io/badger"
+	"github.com/dgraph-io/badger/v2"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/imdario/mergo"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type I interface {
-	Close()
+	Close() error
 	Del([]byte) error
 	Get([]byte) (*pb.Record, error)
 	Iterate(int64) chan *pb.Record
@@ -31,6 +31,7 @@ type KV struct {
 type Wal struct {
 	logger        logger.Logger
 	storage       *badger.DB
+	dbOpts        badger.Options
 	stopCh        chan bool
 	writeCh       chan KV
 	deleteCh      chan []byte
@@ -51,22 +52,30 @@ func New(conf Config, prom *prometheus.Registry, logger logger.Logger) (*Wal, er
 		os.Mkdir(conf.Path, os.ModePerm)
 	}
 
-	badgerOpts := badger.DefaultOptions(conf.Path)
+	// Setup BadgerDB options
 	if conf.Path != "" {
 		ok, err := isWritable(conf.Path)
 		if !ok {
 			logger.Fatalf("The WAL folder does not work due to: %s", err)
 		}
-		badgerOpts.Dir = conf.Path
-		badgerOpts.ValueDir = conf.Path
 	}
-	db, err := badger.Open(badgerOpts)
+
+	var opts badger.Options
+	if conf.InMemory {
+		logger.Info("Running WAL with InMemory mode, everything is stored in memory")
+		opts = badger.DefaultOptions("").WithInMemory(true)
+	} else {
+		opts = badger.DefaultOptions(conf.Path)
+	}
+
+	db, err := badger.Open(opts)
 	if err != nil {
 		return nil, err
 	}
 
 	wal := &Wal{
 		storage:       db,
+		dbOpts:        opts,
 		config:        conf,
 		logger:        logger,
 		stopCh:        make(chan bool),
@@ -95,6 +104,8 @@ func New(conf Config, prom *prometheus.Registry, logger logger.Logger) (*Wal, er
 			case kv := <-w.writeCh:
 				w.lastWriteAt = time.Now()
 				if c < w.config.WriteBatchSize {
+					// WriteBatch API has changed:
+					// https://github.com/dgraph-io/badger/commit/cd5884e0e8ebe92de4afa8f543a8120b40551e5f
 					batch.Set(kv.k, kv.v)
 					c++
 				} else {
@@ -169,10 +180,12 @@ func (w *Wal) FlushDeletes() error {
 	return w.storage.Sync()
 }
 
-func (w *Wal) Close() {
+func (w *Wal) Close() error {
 	w.FlushWrites()
 	w.FlushDeletes()
-	w.storage.Close()
+
+	// Close BadgerDB
+	return w.storage.Close()
 }
 
 func (w *Wal) Set(topic string, value []byte) error {
