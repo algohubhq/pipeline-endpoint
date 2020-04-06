@@ -52,19 +52,18 @@ func New(conf Config, prom *prometheus.Registry, logger logger.Logger) (*Wal, er
 		os.Mkdir(conf.Path, os.ModePerm)
 	}
 
-	// Setup BadgerDB options
-	if conf.Path != "" {
-		ok, err := isWritable(conf.Path)
-		if !ok {
-			logger.Fatalf("The WAL folder does not work due to: %s", err)
-		}
-	}
-
 	var opts badger.Options
 	if conf.InMemory {
 		logger.Info("Running WAL with InMemory mode, everything is stored in memory")
 		opts = badger.DefaultOptions("").WithInMemory(true)
 	} else {
+		// Setup BadgerDB options
+		if conf.Path != "" {
+			ok, err := isWritable(conf.Path)
+			if !ok {
+				logger.Fatalf("The WAL folder does not work due to: %s", err)
+			}
+		}
 		opts = badger.DefaultOptions(conf.Path)
 	}
 
