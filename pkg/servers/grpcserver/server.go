@@ -57,8 +57,8 @@ func (s *Server) Start(configPath string) {
 
 	go func() {
 		if err = grpcSrv.Serve(lis); err != nil {
-			s.HealthyChan <- false
 			s.Logger.Fatalf("failed to serve: %v", err)
+			s.HealthyChan <- false
 		}
 	}()
 	s.Wg.Add(1)

@@ -76,8 +76,8 @@ func (s *Server) Start(configPath string) {
 		s.Logger.Infof("Listening for HTTP requests on %s", addr)
 		err := httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			s.HealthyChan <- false
 			s.Logger.Errorf("Unable to start http server: %v", err)
+			s.HealthyChan <- false
 		}
 	}()
 

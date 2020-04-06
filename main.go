@@ -149,7 +149,11 @@ func main() {
 	s.Producer = producer
 	s.Start()
 
+	s.Logger.Info("All Servers Started")
+
 	healthyChan <- true
+
+	s.Logger.Info("Healthy")
 
 	for {
 		signal := <-sig

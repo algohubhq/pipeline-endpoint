@@ -11,7 +11,7 @@
 package openapi
 // EndpointPathModel struct for EndpointPathModel
 type EndpointPathModel struct {
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
 	IsDefault bool `json:"isDefault,omitempty"`
 	Description *string `json:"description,omitempty"`
 	ConnectionString *string `json:"connectionString,omitempty"`
