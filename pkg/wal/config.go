@@ -21,7 +21,7 @@ type Config struct {
 
 var DefaultConfig = Config{
 	Path:                 "/data/wal",
-	InMemory:             true,
+	InMemory:             false,
 	CollectMetricsPeriod: 30 * time.Second,
 	WriteBatchTimeout:    5 * time.Second,
 	DeleteBatchTimeout:   5 * time.Second,
