@@ -27,7 +27,7 @@ func New(conf *Config, prom *prometheus.Registry, logger logger.Logger, healthyC
 	}
 
 	destBucket := strings.ToLower(fmt.Sprintf("algorun.%s.%s",
-		conf.deploymentOwnerUserName,
+		conf.deploymentOwner,
 		conf.deploymentName))
 	// location := "us-east-1"
 

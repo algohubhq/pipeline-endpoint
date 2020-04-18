@@ -13,7 +13,7 @@ message ListTopicsResponse {
 }
 
 message ProdRq {
-    string deploymentOwnerUserName = 1;
+    string deploymentOwner = 1;
     string deploymentName = 2;
     string endpointPath = 3;
     string runID = 4;

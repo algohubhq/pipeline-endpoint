@@ -10,22 +10,22 @@ import (
 )
 
 type Config struct {
-	Host                    string `yaml:"host"`
-	deploymentOwnerUserName string `yaml:"deploymentOwnerUserName"`
-	deploymentName          string `yaml:"deploymentName"`
-	accessKeyID             string `yaml:"accessKeyID"`
-	secretAccessKey         string `yaml:"secretAccessKey"`
-	useSSL                  bool   `yaml:"useSSL"`
+	Host            string `yaml:"host"`
+	deploymentOwner string `yaml:"deploymentOwner"`
+	deploymentName  string `yaml:"deploymentName"`
+	accessKeyID     string `yaml:"accessKeyID"`
+	secretAccessKey string `yaml:"secretAccessKey"`
+	useSSL          bool   `yaml:"useSSL"`
 }
 
 func UploaderConfig(c *viper.Viper, logger logger.Logger) *Config {
 
 	u := new(Config)
 
-	deploymentOwnerUserName := c.GetString("deploymentOwnerUserName")
+	deploymentOwner := c.GetString("deploymentOwner")
 	deploymentName := c.GetString("deploymentName")
 
-	if deploymentOwnerUserName == "" || deploymentName == "" {
+	if deploymentOwner == "" || deploymentName == "" {
 		logger.Panic("Deployment owner and name configuration must not be empty")
 	}
 
@@ -37,7 +37,7 @@ func UploaderConfig(c *viper.Viper, logger logger.Logger) *Config {
 		logger.Panic("Could not parse s3 connection string: %s [%v]", s3ConnectionString, err)
 	}
 
-	u.deploymentOwnerUserName = deploymentOwnerUserName
+	u.deploymentOwner = deploymentOwner
 	u.deploymentName = deploymentName
 	u.Host = host.Host
 	u.accessKeyID = accessKey

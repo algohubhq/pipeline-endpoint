@@ -1,0 +1,33 @@
+{
+    "DeploymentOwner": "local",
+    "DeploymentName": "test-deployment",
+    "PipelineOwner": "local",
+    "PipelineName": "test-pipeline",
+    "replicas": 1,
+    "resources": {},
+    "autoscaling": {
+        "maxReplicas": 1,
+        "minReplicas": 1
+    },
+    "paths": [
+        {
+            "name": "test_http",
+            "endpointType": "HTTP",
+            "messageDataType": "Embedded",
+            "contentType": "text/any",
+            "topic": {
+                "outputName": "test_http",
+                "autoName": true,
+                "topicName": "algorun.{deploymentowner}.{deploymentname}.endpoint.test_http",
+                "autoPartition": true,
+                "partitions": 1,
+                "replicationFactor": 1
+            }
+        }
+    ],
+    "kafka": {
+        "brokers": [
+            "kafka-kafka-bootstrap.kafka:9093"
+        ]
+    }
+}

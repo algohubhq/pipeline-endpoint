@@ -84,7 +84,7 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 			return err
 		}
 
-		deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
+		deploymentOwner := s.Config.GetString("deploymentOwner")
 		deploymentName := s.Config.GetString("deploymentName")
 		endpointPath := req.EndpointPath
 		runID := req.RunID
@@ -106,16 +106,16 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 		headers["contentType"] = []byte(contentType)
 		headers["endpointParams"] = []byte(urlValues.Encode())
 
-		if deploymentOwnerUserName != req.DeploymentOwnerUserName ||
+		if deploymentOwner != req.DeploymentOwner ||
 			deploymentName != req.DeploymentName {
 			err = fmt.Errorf("Received message intended for deployment [%s/%s] but this endpoint handles [%s/%s]. Message dropped",
-				req.DeploymentOwnerUserName, req.DeploymentName, deploymentOwnerUserName, deploymentName)
+				req.DeploymentOwner, req.DeploymentName, deploymentOwner, deploymentName)
 			s.Logger.Errorf("%v", err)
 			return err
 		}
 
 		topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
-			deploymentOwnerUserName,
+			deploymentOwner,
 			deploymentName,
 			req.EndpointPath))
 
@@ -125,7 +125,7 @@ func (s *Server) Produce(stream pb.KafkaAmbassador_ProduceServer) error {
 			// Create file uuid
 			fileName := uuid.New()
 			bucketName := fmt.Sprintf("%s.%s",
-				strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
+				strings.ToLower(s.Config.GetString("deploymentOwner")),
 				strings.ToLower(s.Config.GetString("deploymentName")))
 			fileReference := openapi.FileReference{
 				Host:   s.Uploader.Config.Host,

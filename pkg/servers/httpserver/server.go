@@ -16,7 +16,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	"k8s.io/utils/pointer"
 )
 
 const (
@@ -32,11 +31,11 @@ var (
 
 type Server server.T
 
-func (s *Server) getRouter(deploymentOwnerUserName string, deploymentName string) http.Handler {
+func (s *Server) getRouter(deploymentOwner string, deploymentName string) http.Handler {
 	r := mux.NewRouter()
 
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", deploymentOwnerUserName, deploymentName, pathEndpoint), s.messageHandler)
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{runId}", deploymentOwnerUserName, deploymentName, pathEndpoint), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", deploymentOwner, deploymentName, pathEndpoint), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{runId}", deploymentOwner, deploymentName, pathEndpoint), s.messageHandler)
 
 	r.HandleFunc("/topics", s.topicsHandler).Methods("GET")
 
@@ -61,10 +60,10 @@ func (s *Server) Start(configPath string) {
 		}
 	}()
 
-	deploymentOwnerUserName := s.Config.GetString("deploymentOwnerUserName")
+	deploymentOwner := s.Config.GetString("deploymentOwner")
 	deploymentName := s.Config.GetString("deploymentName")
 
-	r := s.getRouter(deploymentOwnerUserName, deploymentName)
+	r := s.getRouter(deploymentOwner, deploymentName)
 	c := s.Config.Sub(configPath)
 	addr := c.GetString("listen")
 	httpServer := &http.Server{
@@ -119,7 +118,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 			Errors: []openapi.ErrorModel{
 				openapi.ErrorModel{
 					ErrorCode: 50002,
-					Message:   pointer.StringPtr(fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath)),
+					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath),
 				},
 			},
 		}
@@ -129,7 +128,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
-		s.Config.GetString("deploymentOwnerUserName"),
+		s.Config.GetString("deploymentOwner"),
 		s.Config.GetString("deploymentName"),
 		endpointPath))
 
@@ -141,7 +140,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 			Errors: []openapi.ErrorModel{
 				openapi.ErrorModel{
 					ErrorCode: 50001,
-					Message:   pointer.StringPtr(fmt.Sprintf("Error reading request body. %s", err.Error())),
+					Message:   fmt.Sprintf("Error reading request body. %s", err.Error()),
 				},
 			},
 		}
@@ -157,7 +156,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		// Create file uuid
 		fileName := uuid.New()
 		bucketName := fmt.Sprintf("%s.%s",
-			strings.ToLower(s.Config.GetString("deploymentOwnerUserName")),
+			strings.ToLower(s.Config.GetString("deploymentOwner")),
 			strings.ToLower(s.Config.GetString("deploymentName")))
 		fileReference := openapi.FileReference{
 			Host:   s.Uploader.Config.Host,
@@ -173,11 +172,11 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 				Errors: []openapi.ErrorModel{
 					openapi.ErrorModel{
 						ErrorCode: 50003,
-						Message:   pointer.StringPtr(fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File)),
+						Message:   fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File),
 					},
 					openapi.ErrorModel{
 						ErrorCode: 50004,
-						Message:   pointer.StringPtr(fmt.Sprintf("Storage error [%s]", err.Error())),
+						Message:   fmt.Sprintf("Storage error [%s]", err.Error()),
 					},
 				},
 			}
@@ -233,7 +232,7 @@ func (s *Server) topicsHandler(w http.ResponseWriter, r *http.Request) {
 			Errors: []openapi.ErrorModel{
 				openapi.ErrorModel{
 					ErrorCode: 50005,
-					Message:   pointer.StringPtr(fmt.Sprintf("Error getting topics [%s]", err)),
+					Message:   fmt.Sprintf("Error getting topics [%s]", err),
 				},
 			},
 		}

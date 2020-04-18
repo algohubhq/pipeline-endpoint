@@ -12,6 +12,6 @@ package openapi
 // ErrorModel struct for ErrorModel
 type ErrorModel struct {
 	ErrorCode int32 `json:"errorCode,omitempty"`
-	HelpUrl *string `json:"helpUrl,omitempty"`
-	Message *string `json:"message,omitempty"`
+	HelpUrl string `json:"helpUrl,omitempty"`
+	Message string `json:"message,omitempty"`
 }
