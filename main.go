@@ -121,18 +121,16 @@ func main() {
 	}
 
 	// Create the uploader
-	uploaderConfig := uploader.UploaderConfig(s.Config, s.Logger)
-	if err != nil {
-		os.Exit(1)
-	}
+	uploaderConfig := uploader.UploaderConfig(s.Config, s.Logger, endpointPaths)
 
-	uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger, healthyChan)
-	if err != nil {
-		os.Exit(1)
+	if uploaderConfig != nil {
+		uploader, err := uploader.New(uploaderConfig, s.Prometheus, s.Logger, healthyChan)
+		if err != nil {
+			os.Exit(1)
+		}
+		uploader.HealthyChan = healthyChan
+		s.Uploader = uploader
 	}
-	uploader.HealthyChan = healthyChan
-
-	s.Uploader = uploader
 
 	producer := &kafka.T{}
 	producer.HealthyChan = healthyChan

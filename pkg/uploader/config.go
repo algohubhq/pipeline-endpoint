@@ -1,9 +1,11 @@
 package uploader
 
 import (
+	"deployment-endpoint/pkg/config"
 	"deployment-endpoint/pkg/logger"
 	"fmt"
 	"net/url"
+	"os"
 	"regexp"
 
 	"github.com/spf13/viper"
@@ -18,7 +20,7 @@ type Config struct {
 	useSSL          bool   `yaml:"useSSL"`
 }
 
-func UploaderConfig(c *viper.Viper, logger logger.Logger) *Config {
+func UploaderConfig(c *viper.Viper, logger logger.Logger, endpointPaths []config.EndpointPath) *Config {
 
 	u := new(Config)
 
@@ -34,7 +36,15 @@ func UploaderConfig(c *viper.Viper, logger logger.Logger) *Config {
 	// Parse the host connection string
 	host, accessKey, secret, err := parseEnvURLStr(s3ConnectionString)
 	if err != nil {
-		logger.Panic("Could not parse s3 connection string: %s [%v]", s3ConnectionString, err)
+		// Check if there are any paths with File Reference, which require a storage connection
+		for _, path := range endpointPaths {
+			if path.MessageDataType == "FileReference" {
+				logger.Error(
+					fmt.Sprintf("Path Message Data Type is set to file reference but the storage connection string is invalid. Endpoint Path name: [%s] Shutting down...", path.Name))
+				os.Exit(1)
+			}
+		}
+		return nil
 	}
 
 	u.deploymentOwner = deploymentOwner
