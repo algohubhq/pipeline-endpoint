@@ -98,15 +98,21 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	endpointPath := mux.Vars(r)[pathEndpoint]
 	params := r.URL.Query()
 	contentType := r.Header.Get(hdrContentType)
-	runID := mux.Vars(r)["runId"]
+	msgKey := mux.Vars(r)["key"]
+	traceID := mux.Vars(r)["traceID"]
 
 	headers := make(map[string][]byte)
 
-	if runID == "" {
-		runIDUuid := uuid.New()
-		runID = runIDUuid.String()
+	if msgKey == "" {
+		keyUUID := uuid.New()
+		msgKey = keyUUID.String()
+	}
+	if traceID == "" {
+		traceUUID := uuid.New()
+		traceID = traceUUID.String()
 	}
 
+	headers["traceID"] = []byte(traceID)
 	headers["endpointParams"] = []byte(params.Encode())
 	headers["contentType"] = []byte(contentType)
 
@@ -116,7 +122,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 			StatusCode: 400,
 			Message:    "Failed to run endpoint",
 			Errors: []openapi.ErrorModel{
-				openapi.ErrorModel{
+				{
 					ErrorCode: 50002,
 					Message:   fmt.Sprintf("Endpoint Output [%s] was not found", endpointPath),
 				},
@@ -138,7 +144,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 			StatusCode: 400,
 			Message:    "Failed to run endpoint",
 			Errors: []openapi.ErrorModel{
-				openapi.ErrorModel{
+				{
 					ErrorCode: 50001,
 					Message:   fmt.Sprintf("Error reading request body. %s", err.Error()),
 				},
@@ -170,11 +176,11 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 				StatusCode: 400,
 				Message:    "Failed to run endpoint",
 				Errors: []openapi.ErrorModel{
-					openapi.ErrorModel{
+					{
 						ErrorCode: 50003,
 						Message:   fmt.Sprintf("Error uploading to storage for file reference [%s]", fileReference.File),
 					},
-					openapi.ErrorModel{
+					{
 						ErrorCode: 50004,
 						Message:   fmt.Sprintf("Storage error [%s]", err.Error()),
 					},
@@ -187,11 +193,11 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
 		jsonBytes, _ := json.Marshal(fileReference)
 
-		s.Producer.Send(topic, headers, runID, jsonBytes)
+		s.Producer.Send(topic, headers, msgKey, jsonBytes)
 
 	} else {
 
-		s.Producer.Send(topic, headers, runID, msg)
+		s.Producer.Send(topic, headers, msgKey, msg)
 
 	}
 
@@ -230,7 +236,7 @@ func (s *Server) topicsHandler(w http.ResponseWriter, r *http.Request) {
 			StatusCode: 400,
 			Message:    "Failed to get topics",
 			Errors: []openapi.ErrorModel{
-				openapi.ErrorModel{
+				{
 					ErrorCode: 50005,
 					Message:   fmt.Sprintf("Error getting topics [%s]", err),
 				},
