@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"deployment-endpoint/pkg/kafka_mock"
+	"pipeline-endpoint/pkg/kafka_mock"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

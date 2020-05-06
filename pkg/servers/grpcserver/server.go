@@ -9,10 +9,10 @@ import (
 	"net/url"
 	"strings"
 
-	"deployment-endpoint/openapi"
-	"deployment-endpoint/pkg/server"
+	"pipeline-endpoint/openapi"
+	"pipeline-endpoint/pkg/server"
 
-	pb "deployment-endpoint/pkg/pb"
+	pb "pipeline-endpoint/pkg/pb"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"

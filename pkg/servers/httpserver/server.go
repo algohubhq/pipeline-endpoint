@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"deployment-endpoint/openapi"
-	"deployment-endpoint/pkg/server"
+	"pipeline-endpoint/openapi"
+	"pipeline-endpoint/pkg/server"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"

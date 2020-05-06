@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"deployment-endpoint/pkg/logger"
-	"deployment-endpoint/pkg/wal/pb"
+	"pipeline-endpoint/pkg/logger"
+	"pipeline-endpoint/pkg/wal/pb"
 
 	"github.com/dgraph-io/badger/v2"
 	"github.com/golang/protobuf/ptypes"

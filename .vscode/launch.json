@@ -14,7 +14,7 @@
                 "EP_UPLOADER_HOST": "http://minio:minio123@localhost:30900"
             },
             "args": [
-                "--config", "/Users/mike/go/src/deployment-endpoint/config/endpoint-config.json",
+                "--config", "/Users/mike/go/src/pipeline-endpoint/config/endpoint-config.json",
             ]
         }
     ]

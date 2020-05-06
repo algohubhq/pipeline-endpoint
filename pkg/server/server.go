@@ -3,10 +3,10 @@ package server
 import (
 	"sync"
 
-	"deployment-endpoint/pkg/config"
-	"deployment-endpoint/pkg/kafka"
-	"deployment-endpoint/pkg/logger"
-	"deployment-endpoint/pkg/uploader"
+	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/kafka"
+	"pipeline-endpoint/pkg/logger"
+	"pipeline-endpoint/pkg/uploader"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/viper"
@@ -20,15 +20,15 @@ type I interface {
 }
 
 type T struct {
-	HealthyChan     chan bool
-	Producer        kafka.I
-	Uploader        *uploader.Uploader
+	HealthyChan   chan bool
+	Producer      kafka.I
+	Uploader      *uploader.Uploader
 	EndpointPaths map[string]config.EndpointPath
-	Logger          logger.Logger
-	Prometheus      *prometheus.Registry
-	Config          *viper.Viper
-	Wg              *sync.WaitGroup
-	Done            chan bool
+	Logger        logger.Logger
+	Prometheus    *prometheus.Registry
+	Config        *viper.Viper
+	Wg            *sync.WaitGroup
+	Done          chan bool
 }
 
 func (s *T) Stop() {

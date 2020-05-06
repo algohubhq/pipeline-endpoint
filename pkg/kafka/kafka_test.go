@@ -21,9 +21,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sony/gobreaker"
 
-	"deployment-endpoint/pkg/config"
-	"deployment-endpoint/pkg/testproxy"
-	"deployment-endpoint/pkg/wal"
+	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/testproxy"
+	"pipeline-endpoint/pkg/wal"
 
 	"github.com/optiopay/kafka/kafkatest"
 	"github.com/optiopay/kafka/proto"

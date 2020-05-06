@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"deployment-endpoint/pkg/logger"
-	"deployment-endpoint/pkg/wal"
+	"pipeline-endpoint/pkg/logger"
+	"pipeline-endpoint/pkg/wal"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"

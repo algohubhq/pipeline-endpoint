@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"deployment-endpoint/pkg/config"
-	"deployment-endpoint/pkg/kafka"
-	"deployment-endpoint/pkg/logger"
-	"deployment-endpoint/pkg/servers"
-	"deployment-endpoint/pkg/uploader"
+	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/kafka"
+	"pipeline-endpoint/pkg/logger"
+	"pipeline-endpoint/pkg/servers"
+	"pipeline-endpoint/pkg/uploader"
 
 	ckg "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"

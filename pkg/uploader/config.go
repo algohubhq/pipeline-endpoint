@@ -1,11 +1,11 @@
 package uploader
 
 import (
-	"deployment-endpoint/pkg/config"
-	"deployment-endpoint/pkg/logger"
 	"fmt"
 	"net/url"
 	"os"
+	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/logger"
 	"regexp"
 
 	"github.com/spf13/viper"

@@ -3,7 +3,7 @@ package kafka
 import (
 	"strings"
 
-	"deployment-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/config"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/spf13/viper"

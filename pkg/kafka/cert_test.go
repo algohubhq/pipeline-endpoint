@@ -6,7 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"deployment-endpoint/pkg/config"
+	"pipeline-endpoint/pkg/config"
+
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/stretchr/testify/assert"
 )

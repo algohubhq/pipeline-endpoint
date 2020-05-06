@@ -1,7 +1,7 @@
 package kafka_mock
 
 import (
-	"deployment-endpoint/pkg/kafka"
+	"pipeline-endpoint/pkg/kafka"
 
 	k "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"

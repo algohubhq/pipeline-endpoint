@@ -2,9 +2,9 @@ package grpcserver
 
 import (
 	"context"
-	"deployment-endpoint/pkg/kafka_mock"
-	"deployment-endpoint/pkg/pb"
 	"errors"
+	"pipeline-endpoint/pkg/kafka_mock"
+	"pipeline-endpoint/pkg/pb"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -2,9 +2,9 @@ package uploader
 
 import (
 	"bytes"
-	"deployment-endpoint/openapi"
-	"deployment-endpoint/pkg/logger"
 	"fmt"
+	"pipeline-endpoint/openapi"
+	"pipeline-endpoint/pkg/logger"
 	"strings"
 
 	"github.com/minio/minio-go/v6"

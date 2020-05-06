@@ -6,7 +6,7 @@ RUN apk add librdkafka-dev git build-base && \
 
 # Enable support of go modules by default
 ENV GO111MODULE on
-ENV BASE_DIR /go/src/deployment-endpoint
+ENV BASE_DIR /go/src/pipeline-endpoint
 
 # Warming modules cache with project dependencies
 WORKDIR ${BASE_DIR}
@@ -18,7 +18,7 @@ COPY . .
 
 # Run tests and build on success
 RUN go test ./... \
- && go build -o /go/bin/deployment-endpoint
+ && go build -o /go/bin/pipeline-endpoint
 
 
 # Final container stage
@@ -30,4 +30,4 @@ RUN apk update && \
       ca-certificates && \
       rm -rf /var/cache/apk/*
 
-COPY --from=builder /go/bin/deployment-endpoint /bin/deployment-endpoint
+COPY --from=builder /go/bin/pipeline-endpoint /bin/pipeline-endpoint

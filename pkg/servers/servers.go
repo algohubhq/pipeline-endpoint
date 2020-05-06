@@ -3,10 +3,10 @@ package servers
 import (
 	"sync"
 
-	"deployment-endpoint/pkg/server"
-	"deployment-endpoint/pkg/servers/grpcserver"
-	"deployment-endpoint/pkg/servers/httpserver"
-	"deployment-endpoint/pkg/servers/monitoring"
+	"pipeline-endpoint/pkg/server"
+	"pipeline-endpoint/pkg/servers/grpcserver"
+	"pipeline-endpoint/pkg/servers/httpserver"
+	"pipeline-endpoint/pkg/servers/monitoring"
 )
 
 const (
@@ -24,44 +24,44 @@ func (s *T) Start() {
 
 	if s.Config.IsSet(monitoringPath + ".listen") {
 		monitSrv := &monitoring.Server{
-			HealthyChan:     s.HealthyChan,
-			Producer:        s.Producer,
-			Uploader:        s.Uploader,
+			HealthyChan:   s.HealthyChan,
+			Producer:      s.Producer,
+			Uploader:      s.Uploader,
 			EndpointPaths: s.EndpointPaths,
-			Config:          s.Config,
-			Prometheus:      s.Prometheus,
-			Logger:          s.Logger,
-			Wg:              new(sync.WaitGroup),
-			Done:            make(chan bool),
+			Config:        s.Config,
+			Prometheus:    s.Prometheus,
+			Logger:        s.Logger,
+			Wg:            new(sync.WaitGroup),
+			Done:          make(chan bool),
 		}
 		go monitSrv.Start(monitoringPath)
 	}
 	if s.Config.IsSet(httpPath + ".listen") {
 		httpSrv := &httpserver.Server{
-			HealthyChan:     s.HealthyChan,
-			Producer:        s.Producer,
-			Uploader:        s.Uploader,
+			HealthyChan:   s.HealthyChan,
+			Producer:      s.Producer,
+			Uploader:      s.Uploader,
 			EndpointPaths: s.EndpointPaths,
-			Config:          s.Config,
-			Prometheus:      s.Prometheus,
-			Logger:          s.Logger,
-			Wg:              new(sync.WaitGroup),
-			Done:            make(chan bool),
+			Config:        s.Config,
+			Prometheus:    s.Prometheus,
+			Logger:        s.Logger,
+			Wg:            new(sync.WaitGroup),
+			Done:          make(chan bool),
 		}
 		go httpSrv.Start(httpPath)
 		s.Servers = append(s.Servers, httpSrv)
 	}
 	if s.Config.IsSet(grpcPath + ".listen") {
 		grpcSrv := &grpcserver.Server{
-			HealthyChan:     s.HealthyChan,
-			Producer:        s.Producer,
-			Uploader:        s.Uploader,
-			Config:          s.Config,
+			HealthyChan:   s.HealthyChan,
+			Producer:      s.Producer,
+			Uploader:      s.Uploader,
+			Config:        s.Config,
 			EndpointPaths: s.EndpointPaths,
-			Prometheus:      s.Prometheus,
-			Logger:          s.Logger,
-			Wg:              new(sync.WaitGroup),
-			Done:            make(chan bool),
+			Prometheus:    s.Prometheus,
+			Logger:        s.Logger,
+			Wg:            new(sync.WaitGroup),
+			Done:          make(chan bool),
 		}
 		go grpcSrv.Start(grpcPath)
 		s.Servers = append(s.Servers, grpcSrv)

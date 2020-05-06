@@ -5,7 +5,8 @@ import (
 	"hash/crc32"
 	"time"
 
-	"deployment-endpoint/pkg/wal/pb"
+	"pipeline-endpoint/pkg/wal/pb"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 )
