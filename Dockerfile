@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.13.8-alpine3.11 AS builder
+FROM golang:1.14.3-alpine3.11 AS builder
 
 RUN apk add librdkafka-dev git build-base && \
       rm -rf /var/cache/apk/*
@@ -22,7 +22,7 @@ RUN go test ./... \
 
 
 # Final container stage
-FROM golang:1.13.8-alpine3.11
+FROM golang:1.14.3-alpine3.11
 
 # install rdkafka
 RUN apk update && \
