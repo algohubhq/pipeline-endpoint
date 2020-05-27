@@ -22,7 +22,7 @@ Let's take a look at how the endpoint is implemented.
 
 ![](https://content.algohub.com/assets/Endpoint-Deployment.png)
 
-As you can see, a deployed endpoint will have the following resources created:
+A deployed endpoint will have the following resources created:
 
 - An Ambassador mapping will be generated for the path, which routes ingress traffic from the endpoint path to the appropriate container.
 - A container for the endpoint type is created to handle the appropriate protocol.
@@ -38,4 +38,4 @@ Data can then be sent to the endpoint path following using these Url conventions
 
 ## Fork
 
-This repository was forked from [Kafka Ambassador]https://github.com/AnchorFree/kafka-ambassador and modified for the Algo.Run Pipeline Deployment semantics.
+This repository was forked from [Kafka Ambassador](https://github.com/AnchorFree/kafka-ambassador) and modified for the Algo.Run Pipeline Deployment semantics.

@@ -9,6 +9,9 @@ ssl/*
 *.so
 *.dylib
 
+# Dont copy the open-api code generator
+openapi-generator-cli*
+
 # Test binary, build with `go test -c`
 *.test
 
