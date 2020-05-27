@@ -1,168 +1,41 @@
-# kafka-ambassador
+## Pipeline Endpoint
 
-Kafka proxy to handle HTTP and gRPC messages into kafka stream
+The Pipeline Endpoint is a HTTP / gRPC to Kafka gateway proxy that is deployed by the Algo.Run Pipeline Operator.
 
-## Why another kafka proxy
+An endpoint defines how the pipeline will accept requests and data from outside the Kubernetes cluster. An endpoint can have one or more paths, which will be used to form the url. Each path can be independently piped to any compatible input within the pipeline. An endpoint path can be used to segregate incoming data streams from IoT devices, enable external systems to integrate with the pipeline, create parallel processing pipes within a single pipeline and other creative uses.
 
-There are available kafka proxies, such as:
+The endpoint path can be configured with the following options:
 
-- [kafka-pixy](https://github.com/mailgun/kafka-pixy)
-- [kafka-gateway](https://github.com/moul/kafka-gateway)
-- [Kafka REST proxy](https://docs.confluent.io/current/kafka-rest/docs/index.html)
+- Name - A short, url friendly name for the endpoint path. Endpoint path name can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen with a maximum length of 50 characters.
+- Description - A human friendly description of the endpoint path and how it is used.
+- Endpoint Type - The endpoint type determines which protocol will be accepted for this path. Currently the possible protocols are HTTP(S) and gRPC, with Kafka and RTMP on the roadmap and coming soon.
+- Message Data Type - The message data type enables you to choose how the incoming data is stored in the pipeline. The options are:
 
-Unfortunately these products, even though quite mature and good, doesn't satisfy our needs:
+	- Embedded - If embedded, the incoming data will be added directly as the value for the message that will be delivered to Kafka.
+	- FileReference - If FileReference, the incoming data will be saved to shared storage and a json message will be generated containing the location information for the file. The json file reference message will then be delivered to Kafka.
+- Content Type - The accepted content type can be defined for this endpoint path. By defining the content type you gain additional features:
 
-- High performance (we have around 60k msg/sec on one instance)
-- Fallback to disk in case kafka is not available.
-- always ready for a switch to Amazon Redshift or any other message queue.
+	- Ensure only compatible outputs and inputs can be piped to each other
+	- Validation of the data being delivered to ensure it matches the content type
 
-This package doesn't solve following problems:
+Let's take a look at how the endpoint is implemented.
 
-- Does not respect message order. In case message landed into WAL, we do not control message order at all.
-- Support `consume` operations. We use `kafka-ambassador` as one way proxy to Kafka. Only produce actions are supported.
+![](https://content.algohub.com/assets/Endpoint-Deployment.png)
 
-## Architecture
+As you can see, a deployed endpoint will have the following resources created:
 
-TBD
+- An Ambassador mapping will be generated for the path, which routes ingress traffic from the endpoint path to the appropriate container.
+- A container for the endpoint type is created to handle the appropriate protocol.
 
-## Configuration
+Data can then be sent to the endpoint path following using these Url conventions:
 
-```yaml
-server:
-  http:
-    listen: "0.0.0.0:18080"
-  grpc:
-    listen: "0.0.0.0:18282"
-  monitoring:
-    listen: "0.0.0.0:28080"
-producer:
-  cb:
-    interval: 0
-    timeout: "20s"
-    fails: 5
-    requests: 3
-  resend:
-    period: "33s"
-    rate_limit: 10000
-  wal:
-    mode: "fallback"
-    in_memory: false
-    path: /data/wal
-    always_topics:
-      - always_wal
-    disable_topics:
-      - never_wal_topics
-kafka:
-  brokers:
-    - "kafka.address.com:9092"
-  # possible configuration parameters are:
-  # https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-  "compression.codec": "gzip"
-  "batch.num.messages": 100000
-  "max.in.flight.requests.per.connection": 20
-  "message.timeout.ms": 60000
-  "socket.timeout.ms": 10000
-```
+|Endpoint Type|Url|
+| ------------ | ------------ |
+|HTTP(S)|http(s)://{AlgoRun IP}:{HTTP Port}/{Deployment Owner}/{Deployment Name}/{Endpoint Path}|
+|gRPC|http(s)://{AlgoRun IP}:{gRPC Port}/|
+|Kafka|Kafka Broker: {AlgoRun IP}:9092<br>Topic: {Deployment Owner}.{Deployment Name}.{Endpoint Path}|
+|RTMP|Coming Soon|
 
-### configuration reference table
+## Fork
 
-| Parameter                           | Default value         | Description                                                                                                                              |
-| ----------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| server.http.listen                  | NA                    | address to listen to for HTTP interface                                                                                                  |
-| server.grpc.listen                  | NA                    | address to listen to for gRPC interface                                                                                                  |
-| server.monitoring.listen            | NA                    | address for Prometheus exporter under /metrics, the same address is used for profiling.                                                  |
-| producer.cb.interval                | 0                     | Zero counters of failures and successes every N duration. 0 means disable.                                                               |
-| producer.cb.timeout                 | 20s                   | Switch to Half-Open after N seconds in Open state.                                                                                       |
-| producer.cb.fails                   | 5                     | Switch to Open from Closed state if there was N consecutive errors.                                                                      |
-| producer.cb.requests                | 3                     | Consecutive successes to switch to Closed state.                                                                                         |
-| producer.resend.period              | 33s                   | Initiate resend from WAL every N duration. In case current state is Open - resend will be skipped.                                       |
-| producer.resend.rate_limit          | 10000                 | Rate limit WAL reads.                                                                                                                    |
-| producer.wal.always_topics          | []                    | Topics to use WAL even before sending to Kafka. Keep in mind, it slows down the response latency.                                        |
-| producer.wal.disable_topics         | []                    | Topics to skip WAL even for fallback. e.g. you rely on message order.                                                                    |
-| producer.wal.path                   | ""                    | Path to store WAL files.                                                                                                                 |
-| producer.wal.mode                   | fallback              | Possible options: fallback (write to buffer only in case of failure), always (write to wal for all messages), disable (don't use buffer) |
-| producer.wal.in_memory              | false                 | Possible options: false (write WAL data to disk), true (WAL data is stored in memory, in case of crash all data will be lost) |
-| producer.old_producer_kill_timeout  | 10m                   | Time before old producer gets hard shutdown no mater there are still messages in queue                                                   |
-| kafka.brokers                       | []                    |                                                                                                                                          |
-| kafka.*                             | depends on librdkafka | https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md                                                                      |
-
-## Run
-
-### docker compose:
-
-```
----
-version: '2'
-services:
-  kafka-ambassador:
-    image: anchorfree/kafka-ambassador:latest
-    container_name: kafka-ambassador
-    restart: always
-    mem_limit: 4G
-    stop_grace_period: 2m
-    command:
-      - /bin/kafka-ambassador
-      - -config
-      - /etc/kafka-ambassador/config.yaml
-    volumes:
-      - "/etc/kafka-ambassador:/etc/kafka-ambassador"
-      - "/data/wal:/data/wal"
-    ports:
-      - 18080:18080
-      - 19094:19094
-      - 28080:28080
-```
-
-### kubernetes:
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kafka-ambassador
-  labels:
-    app: kafka-ambassador
-spec:
-  replicas: 1
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 10%
-  selector:
-    matchLabels:
-      name: ka
-  template:
-    metadata:
-      labels:
-        name: ka
-    spec:
-      imagePullSecrets:
-      - name: dockercfg
-      containers:
-      - name: kafka-ambassador
-        image: anchorfree/kafka-ambassador:latest
-        args:
-        - /bin/kafka-ambassador
-        - -config
-        - /etc/kafka-ambassador/config.yaml
-        env:
-        - name: TZ
-          value: US/Pacific
-        ports:
-        - name: exporter-port
-          containerPort: 28080
-        - name: grpc-port
-          containerPort: 19094
-        volumeMounts:
-        - name: kafka-ambassador-config
-          mountPath: /etc/kafka-ambassador
-        - name: ka-ula-wal
-          mountPath: /data/wal
-      volumes:
-      - name: kafka-ambassador-config
-        configMap:
-          name: kafka-ambassador-config
-      - name: ka-ula-wal
-        hostPath:
-          path: /data/ka-ula/wal
-```
+This repository was forked from [Kafka Ambassador]https://github.com/AnchorFree/kafka-ambassador and modified for the Algo.Run Pipeline Deployment semantics.
