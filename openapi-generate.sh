@@ -12,8 +12,13 @@ mkdir -p ./openapi/
 cp ./algorun-go-client/model_file_reference.go ./openapi/
 cp ./algorun-go-client/model_api_bad_request_response.go ./openapi/
 cp ./algorun-go-client/model_error_model.go ./openapi/
-cp ./algorun-go-client/model_endpoint_path_model.go ./openapi/
+cp ./algorun-go-client/model_endpoint_path_spec.go ./openapi/
 cp ./algorun-go-client/model_content_type_model.go ./openapi/
+cp ./algorun-go-client/model_topic_config_model.go ./openapi/
+cp ./algorun-go-client/model_topic_param_model.go ./openapi/
+cp ./algorun-go-client/model_topic_retry_strategy_model.go ./openapi/
+cp ./algorun-go-client/model_topic_retry_step_model.go ./openapi/
+cp ./algorun-go-client/model_retry_strategies.go ./openapi/
 
 cp ./algorun-go-client/model_endpoint_types.go ./openapi/
 cp ./algorun-go-client/model_message_data_types.go ./openapi/

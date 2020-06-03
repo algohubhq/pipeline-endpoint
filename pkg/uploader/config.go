@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/openapi"
 	"pipeline-endpoint/pkg/logger"
 	"regexp"
 
@@ -20,7 +20,7 @@ type Config struct {
 	useSSL          bool   `yaml:"useSSL"`
 }
 
-func UploaderConfig(c *viper.Viper, logger logger.Logger, endpointPaths []config.EndpointPath) *Config {
+func UploaderConfig(c *viper.Viper, logger logger.Logger, endpointPaths []openapi.EndpointPathSpec) *Config {
 
 	u := new(Config)
 
@@ -38,7 +38,7 @@ func UploaderConfig(c *viper.Viper, logger logger.Logger, endpointPaths []config
 	if err != nil {
 		// Check if there are any paths with File Reference, which require a storage connection
 		for _, path := range endpointPaths {
-			if path.MessageDataType == "FileReference" {
+			if *path.MessageDataType == "FileReference" {
 				logger.Error(
 					fmt.Sprintf("Path Message Data Type is set to file reference but the storage connection string is invalid. Endpoint Path name: [%s] Shutting down...", path.Name))
 				os.Exit(1)

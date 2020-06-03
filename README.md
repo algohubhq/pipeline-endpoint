@@ -36,6 +36,6 @@ Data can then be sent to the endpoint path following using these Url conventions
 |Kafka|Kafka Broker: {AlgoRun IP}:9092<br>Topic: {Deployment Owner}.{Deployment Name}.{Endpoint Path}|
 |RTMP|Coming Soon|
 
-## Fork
+## License & Fork
 
-This repository was forked from [Kafka Ambassador](https://github.com/AnchorFree/kafka-ambassador) and modified for the Algo.Run Pipeline Deployment semantics.
+This repository was forked from [Kafka Ambassador](https://github.com/AnchorFree/kafka-ambassador) licensed under Apache 2.0 and modified for the Algo.Run Pipeline Deployment semantics.

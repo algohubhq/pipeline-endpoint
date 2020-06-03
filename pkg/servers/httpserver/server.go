@@ -32,10 +32,12 @@ var (
 type Server server.T
 
 func (s *Server) getRouter(deploymentOwner string, deploymentName string) http.Handler {
+
 	r := mux.NewRouter()
 
 	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", deploymentOwner, deploymentName, pathEndpoint), s.messageHandler)
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{runId}", deploymentOwner, deploymentName, pathEndpoint), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{traceID}", deploymentOwner, deploymentName, pathEndpoint), s.messageHandler)
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{traceID}/upload", deploymentOwner, deploymentName, pathEndpoint), s.uploadHandler)
 
 	r.HandleFunc("/topics", s.topicsHandler).Methods("GET")
 
@@ -92,6 +94,18 @@ func (s *Server) Start(configPath string) {
 
 func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 
+	s.handler(w, r, false)
+
+}
+
+func (s *Server) uploadHandler(w http.ResponseWriter, r *http.Request) {
+
+	s.handler(w, r, true)
+
+}
+
+func (s *Server) handler(w http.ResponseWriter, r *http.Request, run bool) {
+
 	var msg []byte
 	var err error
 
@@ -112,6 +126,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		traceID = traceUUID.String()
 	}
 
+	headers["run"] = []byte(strconv.FormatBool(run))
 	headers["traceID"] = []byte(traceID)
 	headers["endpointParams"] = []byte(params.Encode())
 	headers["contentType"] = []byte(contentType)
@@ -133,10 +148,8 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	topic := strings.ToLower(fmt.Sprintf("algorun.%s.%s.endpoint.%s",
-		s.Config.GetString("deploymentOwner"),
-		s.Config.GetString("deploymentName"),
-		endpointPath))
+	pathConfig := s.EndpointPaths[endpointPath]
+	topic := pathConfig.Topic.TopicName
 
 	if msg, err = readMsg(r); err != nil {
 		// Create error response
@@ -156,7 +169,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the message type for this output
-	if s.EndpointPaths[endpointPath].MessageDataType == "FileReference" {
+	if *s.EndpointPaths[endpointPath].MessageDataType == "FileReference" {
 
 		// Upload the file to storage and generate file reference
 		// Create file uuid

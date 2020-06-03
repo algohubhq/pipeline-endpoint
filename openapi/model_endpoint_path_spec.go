@@ -9,13 +9,12 @@
  */
 
 package openapi
-// EndpointPathModel struct for EndpointPathModel
-type EndpointPathModel struct {
+// EndpointPathSpec struct for EndpointPathSpec
+type EndpointPathSpec struct {
 	Name string `json:"name,omitempty"`
 	IsDefault bool `json:"isDefault,omitempty"`
-	Description string `json:"description,omitempty"`
-	ConnectionString string `json:"connectionString,omitempty"`
 	EndpointType *EndpointTypes `json:"endpointType,omitempty"`
 	MessageDataType *MessageDataTypes `json:"messageDataType,omitempty"`
-	ContentType *ContentTypeModel `json:"contentType,omitempty"`
+	ContentType string `json:"contentType,omitempty"`
+	Topic *TopicConfigModel `json:"topic,omitempty"`
 }

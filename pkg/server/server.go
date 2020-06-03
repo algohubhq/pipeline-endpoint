@@ -3,7 +3,7 @@ package server
 import (
 	"sync"
 
-	"pipeline-endpoint/pkg/config"
+	"pipeline-endpoint/openapi"
 	"pipeline-endpoint/pkg/kafka"
 	"pipeline-endpoint/pkg/logger"
 	"pipeline-endpoint/pkg/uploader"
@@ -23,7 +23,7 @@ type T struct {
 	HealthyChan   chan bool
 	Producer      kafka.I
 	Uploader      *uploader.Uploader
-	EndpointPaths map[string]config.EndpointPath
+	EndpointPaths map[string]openapi.EndpointPathSpec
 	Logger        logger.Logger
 	Prometheus    *prometheus.Registry
 	Config        *viper.Viper

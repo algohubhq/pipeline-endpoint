@@ -1,9 +1,10 @@
 syntax = "proto3";
 option go_package = "pb";
 
-service KafkaAmbassador {
-rpc Produce (stream ProdRq) returns (stream ProdRs) {}
-rpc ListTopics (Empty) returns (ListTopicsResponse) {}
+service PipelineEndpoint {
+    rpc Run (stream RunRequest) returns (stream RunResponse) {}
+    rpc Upload (stream RunRequest) returns (stream RunResponse) {}
+    rpc ListTopics (Empty) returns (ListTopicsResponse) {}
 }
 
 message Empty {}
@@ -12,17 +13,17 @@ message ListTopicsResponse {
     repeated string topics = 1;
 }
 
-message ProdRq {
+message RunRequest {
     string deploymentOwner = 1;
     string deploymentName = 2;
     string endpointPath = 3;
-    string runID = 4;
-    string contentType = 5;
-    bytes message = 6;
-    map<string, string> parameters = 7;
-    uint64 streamOffset = 8;
+    string traceID = 5;
+    string contentType = 6;
+    bytes message = 7;
+    map<string, string> parameters = 8;
+    uint64 streamOffset = 9;
 }
 
-message ProdRs {
+message RunResponse {
     uint64 streamOffset = 3;
 }

@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"pipeline-endpoint/openapi"
 	"pipeline-endpoint/pkg/config"
 	"pipeline-endpoint/pkg/kafka"
 	"pipeline-endpoint/pkg/logger"
@@ -91,13 +92,13 @@ func main() {
 	s.Prometheus = prometheus.NewRegistry()
 
 	// endpoint outputs config
-	var endpointPaths []config.EndpointPath
+	var endpointPaths []openapi.EndpointPathSpec
 	err = s.Config.UnmarshalKey("paths", &endpointPaths)
 	if err != nil {
 		s.Logger.Errorf("Unable to deserialize endpoint paths [%v]", err)
 	}
 
-	outputMap := make(map[string]config.EndpointPath)
+	outputMap := make(map[string]openapi.EndpointPathSpec)
 	for _, output := range endpointPaths {
 		outputMap[output.Name] = output
 	}

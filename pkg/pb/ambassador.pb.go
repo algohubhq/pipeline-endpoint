@@ -94,134 +94,134 @@ func (m *ListTopicsResponse) GetTopics() []string {
 	return nil
 }
 
-type ProdRq struct {
+type RunRequest struct {
 	DeploymentOwner      string            `protobuf:"bytes,1,opt,name=deploymentOwner,proto3" json:"deploymentOwner,omitempty"`
 	DeploymentName       string            `protobuf:"bytes,2,opt,name=deploymentName,proto3" json:"deploymentName,omitempty"`
 	EndpointPath         string            `protobuf:"bytes,3,opt,name=endpointPath,proto3" json:"endpointPath,omitempty"`
-	RunID                string            `protobuf:"bytes,4,opt,name=runID,proto3" json:"runID,omitempty"`
-	ContentType          string            `protobuf:"bytes,5,opt,name=contentType,proto3" json:"contentType,omitempty"`
-	Message              []byte            `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
-	Parameters           map[string]string `protobuf:"bytes,7,rep,name=parameters,proto3" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	StreamOffset         uint64            `protobuf:"varint,8,opt,name=streamOffset,proto3" json:"streamOffset,omitempty"`
+	TraceID              string            `protobuf:"bytes,5,opt,name=traceID,proto3" json:"traceID,omitempty"`
+	ContentType          string            `protobuf:"bytes,6,opt,name=contentType,proto3" json:"contentType,omitempty"`
+	Message              []byte            `protobuf:"bytes,7,opt,name=message,proto3" json:"message,omitempty"`
+	Parameters           map[string]string `protobuf:"bytes,8,rep,name=parameters,proto3" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	StreamOffset         uint64            `protobuf:"varint,9,opt,name=streamOffset,proto3" json:"streamOffset,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
 }
 
-func (m *ProdRq) Reset()         { *m = ProdRq{} }
-func (m *ProdRq) String() string { return proto.CompactTextString(m) }
-func (*ProdRq) ProtoMessage()    {}
-func (*ProdRq) Descriptor() ([]byte, []int) {
+func (m *RunRequest) Reset()         { *m = RunRequest{} }
+func (m *RunRequest) String() string { return proto.CompactTextString(m) }
+func (*RunRequest) ProtoMessage()    {}
+func (*RunRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c19084e700d1da46, []int{2}
 }
 
-func (m *ProdRq) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ProdRq.Unmarshal(m, b)
+func (m *RunRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RunRequest.Unmarshal(m, b)
 }
-func (m *ProdRq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ProdRq.Marshal(b, m, deterministic)
+func (m *RunRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RunRequest.Marshal(b, m, deterministic)
 }
-func (m *ProdRq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ProdRq.Merge(m, src)
+func (m *RunRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RunRequest.Merge(m, src)
 }
-func (m *ProdRq) XXX_Size() int {
-	return xxx_messageInfo_ProdRq.Size(m)
+func (m *RunRequest) XXX_Size() int {
+	return xxx_messageInfo_RunRequest.Size(m)
 }
-func (m *ProdRq) XXX_DiscardUnknown() {
-	xxx_messageInfo_ProdRq.DiscardUnknown(m)
+func (m *RunRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RunRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ProdRq proto.InternalMessageInfo
+var xxx_messageInfo_RunRequest proto.InternalMessageInfo
 
-func (m *ProdRq) GetDeploymentOwner() string {
+func (m *RunRequest) GetDeploymentOwner() string {
 	if m != nil {
 		return m.DeploymentOwner
 	}
 	return ""
 }
 
-func (m *ProdRq) GetDeploymentName() string {
+func (m *RunRequest) GetDeploymentName() string {
 	if m != nil {
 		return m.DeploymentName
 	}
 	return ""
 }
 
-func (m *ProdRq) GetEndpointPath() string {
+func (m *RunRequest) GetEndpointPath() string {
 	if m != nil {
 		return m.EndpointPath
 	}
 	return ""
 }
 
-func (m *ProdRq) GetRunID() string {
+func (m *RunRequest) GetTraceID() string {
 	if m != nil {
-		return m.RunID
+		return m.TraceID
 	}
 	return ""
 }
 
-func (m *ProdRq) GetContentType() string {
+func (m *RunRequest) GetContentType() string {
 	if m != nil {
 		return m.ContentType
 	}
 	return ""
 }
 
-func (m *ProdRq) GetMessage() []byte {
+func (m *RunRequest) GetMessage() []byte {
 	if m != nil {
 		return m.Message
 	}
 	return nil
 }
 
-func (m *ProdRq) GetParameters() map[string]string {
+func (m *RunRequest) GetParameters() map[string]string {
 	if m != nil {
 		return m.Parameters
 	}
 	return nil
 }
 
-func (m *ProdRq) GetStreamOffset() uint64 {
+func (m *RunRequest) GetStreamOffset() uint64 {
 	if m != nil {
 		return m.StreamOffset
 	}
 	return 0
 }
 
-type ProdRs struct {
+type RunResponse struct {
 	StreamOffset         uint64   `protobuf:"varint,3,opt,name=streamOffset,proto3" json:"streamOffset,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ProdRs) Reset()         { *m = ProdRs{} }
-func (m *ProdRs) String() string { return proto.CompactTextString(m) }
-func (*ProdRs) ProtoMessage()    {}
-func (*ProdRs) Descriptor() ([]byte, []int) {
+func (m *RunResponse) Reset()         { *m = RunResponse{} }
+func (m *RunResponse) String() string { return proto.CompactTextString(m) }
+func (*RunResponse) ProtoMessage()    {}
+func (*RunResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c19084e700d1da46, []int{3}
 }
 
-func (m *ProdRs) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ProdRs.Unmarshal(m, b)
+func (m *RunResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RunResponse.Unmarshal(m, b)
 }
-func (m *ProdRs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ProdRs.Marshal(b, m, deterministic)
+func (m *RunResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RunResponse.Marshal(b, m, deterministic)
 }
-func (m *ProdRs) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ProdRs.Merge(m, src)
+func (m *RunResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RunResponse.Merge(m, src)
 }
-func (m *ProdRs) XXX_Size() int {
-	return xxx_messageInfo_ProdRs.Size(m)
+func (m *RunResponse) XXX_Size() int {
+	return xxx_messageInfo_RunResponse.Size(m)
 }
-func (m *ProdRs) XXX_DiscardUnknown() {
-	xxx_messageInfo_ProdRs.DiscardUnknown(m)
+func (m *RunResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RunResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ProdRs proto.InternalMessageInfo
+var xxx_messageInfo_RunResponse proto.InternalMessageInfo
 
-func (m *ProdRs) GetStreamOffset() uint64 {
+func (m *RunResponse) GetStreamOffset() uint64 {
 	if m != nil {
 		return m.StreamOffset
 	}
@@ -231,38 +231,39 @@ func (m *ProdRs) GetStreamOffset() uint64 {
 func init() {
 	proto.RegisterType((*Empty)(nil), "Empty")
 	proto.RegisterType((*ListTopicsResponse)(nil), "ListTopicsResponse")
-	proto.RegisterType((*ProdRq)(nil), "ProdRq")
-	proto.RegisterMapType((map[string]string)(nil), "ProdRq.ParametersEntry")
-	proto.RegisterType((*ProdRs)(nil), "ProdRs")
+	proto.RegisterType((*RunRequest)(nil), "RunRequest")
+	proto.RegisterMapType((map[string]string)(nil), "RunRequest.ParametersEntry")
+	proto.RegisterType((*RunResponse)(nil), "RunResponse")
 }
 
 func init() { proto.RegisterFile("ambassador.proto", fileDescriptor_c19084e700d1da46) }
 
 var fileDescriptor_c19084e700d1da46 = []byte{
-	// 364 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x92, 0xcf, 0x6e, 0xda, 0x40,
-	0x10, 0xc6, 0x59, 0x1b, 0xec, 0x32, 0xa0, 0x82, 0xb6, 0x55, 0xbb, 0xe2, 0xe4, 0xfa, 0x50, 0x59,
-	0x2a, 0xb2, 0x2a, 0x7a, 0x68, 0x14, 0x29, 0x87, 0x44, 0xe1, 0x10, 0x25, 0x0a, 0xc8, 0xe2, 0x94,
-	0xdb, 0x82, 0x87, 0x04, 0x81, 0x77, 0x37, 0xbb, 0x4b, 0x22, 0xbf, 0x73, 0x1e, 0x22, 0xb2, 0x31,
-	0xff, 0x6f, 0xf3, 0xfd, 0x66, 0x34, 0xb3, 0x33, 0xfb, 0x41, 0x97, 0x67, 0x53, 0x6e, 0x0c, 0x4f,
-	0xa5, 0x8e, 0x95, 0x96, 0x56, 0x86, 0x3e, 0x34, 0x86, 0x99, 0xb2, 0x79, 0xd8, 0x07, 0xfa, 0xb0,
-	0x30, 0x76, 0x22, 0xd5, 0x62, 0x66, 0x12, 0x34, 0x4a, 0x0a, 0x83, 0xf4, 0x07, 0x78, 0xb6, 0x24,
-	0x8c, 0x04, 0x6e, 0xd4, 0x4c, 0x2a, 0x15, 0x7e, 0x38, 0xe0, 0x8d, 0xb5, 0x4c, 0x93, 0x57, 0x1a,
-	0x41, 0x27, 0x45, 0xb5, 0x92, 0x79, 0x86, 0xc2, 0x8e, 0xde, 0x05, 0x6a, 0x46, 0x02, 0x12, 0x35,
-	0x93, 0x53, 0x4c, 0x7f, 0xc3, 0xd7, 0x3d, 0x7a, 0xe4, 0x19, 0x32, 0xa7, 0x2c, 0x3c, 0xa1, 0x34,
-	0x84, 0x36, 0x8a, 0x54, 0xc9, 0x85, 0xb0, 0x63, 0x6e, 0x5f, 0x98, 0x5b, 0x56, 0x1d, 0x31, 0xfa,
-	0x1d, 0x1a, 0x7a, 0x2d, 0xee, 0x6e, 0x59, 0xbd, 0x4c, 0x6e, 0x04, 0x0d, 0xa0, 0x35, 0x93, 0xc2,
-	0xa2, 0xb0, 0x93, 0x5c, 0x21, 0x6b, 0x94, 0xb9, 0x43, 0x44, 0x19, 0xf8, 0x19, 0x1a, 0xc3, 0x9f,
-	0x91, 0x79, 0x01, 0x89, 0xda, 0xc9, 0x56, 0xd2, 0xff, 0x00, 0x8a, 0x6b, 0x9e, 0xa1, 0x45, 0x6d,
-	0x98, 0x1f, 0xb8, 0x51, 0x6b, 0xf0, 0x33, 0xde, 0x2c, 0x19, 0x8f, 0x77, 0x99, 0xa1, 0xb0, 0x3a,
-	0x4f, 0x0e, 0x4a, 0x8b, 0xe7, 0x1a, 0xab, 0x91, 0x67, 0xa3, 0xf9, 0xdc, 0xa0, 0x65, 0x5f, 0x02,
-	0x12, 0xd5, 0x93, 0x23, 0xd6, 0xbb, 0x82, 0xce, 0x49, 0x0b, 0xda, 0x05, 0x77, 0x89, 0x79, 0x75,
-	0xab, 0x22, 0x2c, 0x76, 0x7a, 0xe3, 0xab, 0xf5, 0xf6, 0x2c, 0x1b, 0x71, 0xe9, 0x5c, 0x90, 0xb0,
-	0x5f, 0x5d, 0xfb, 0x7c, 0x98, 0x7b, 0x3e, 0x6c, 0xc0, 0xa1, 0x73, 0xcf, 0xe7, 0x4b, 0x7e, 0xbd,
-	0xfb, 0x6c, 0xfa, 0x0b, 0xfc, 0xa2, 0xc1, 0x7a, 0x86, 0xd4, 0xaf, 0x76, 0xea, 0x55, 0x81, 0x09,
-	0x6b, 0x11, 0xf9, 0x4b, 0xe8, 0x1f, 0x80, 0xbd, 0x01, 0xa8, 0x17, 0x97, 0xb6, 0xe8, 0x7d, 0x8b,
-	0xcf, 0x5d, 0x11, 0xd6, 0x6e, 0xea, 0x4f, 0x8e, 0x9a, 0x4e, 0xbd, 0xd2, 0x43, 0xff, 0x3e, 0x03,
-	0x00, 0x00, 0xff, 0xff, 0xea, 0x8b, 0x51, 0x39, 0x57, 0x02, 0x00, 0x00,
+	// 383 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x8f, 0xd3, 0x30,
+	0x10, 0x85, 0xd7, 0xc9, 0x36, 0xa5, 0x93, 0x8a, 0xad, 0x0c, 0x42, 0x56, 0xb9, 0x44, 0x39, 0xac,
+	0x82, 0x40, 0x11, 0x94, 0x0b, 0x02, 0x71, 0x41, 0xf4, 0x80, 0x84, 0x68, 0x65, 0x95, 0x0b, 0x37,
+	0xb7, 0x99, 0x42, 0x44, 0x62, 0x1b, 0xdb, 0x01, 0xe5, 0x6f, 0xf0, 0x6b, 0x39, 0xa2, 0x9a, 0x94,
+	0xa6, 0xe9, 0x61, 0x6f, 0x79, 0xdf, 0xbc, 0xd8, 0x33, 0xe3, 0x07, 0x33, 0x51, 0x6f, 0x85, 0xb5,
+	0xa2, 0x50, 0x26, 0xd7, 0x46, 0x39, 0x95, 0x8e, 0x61, 0xb4, 0xac, 0xb5, 0x6b, 0xd3, 0x67, 0x40,
+	0x3f, 0x96, 0xd6, 0x6d, 0x94, 0x2e, 0x77, 0x96, 0xa3, 0xd5, 0x4a, 0x5a, 0xa4, 0x8f, 0x20, 0x72,
+	0x9e, 0x30, 0x92, 0x84, 0xd9, 0x84, 0x77, 0x2a, 0xfd, 0x13, 0x00, 0xf0, 0x46, 0x72, 0xfc, 0xd1,
+	0xa0, 0x75, 0x34, 0x83, 0x9b, 0x02, 0x75, 0xa5, 0xda, 0x1a, 0xa5, 0x5b, 0xfd, 0x92, 0x68, 0x18,
+	0x49, 0x48, 0x36, 0xe1, 0x43, 0x4c, 0x6f, 0xe1, 0xfe, 0x09, 0x7d, 0x12, 0x35, 0xb2, 0xc0, 0x1b,
+	0x07, 0x94, 0xa6, 0x30, 0x45, 0x59, 0x68, 0x55, 0x4a, 0xb7, 0x16, 0xee, 0x1b, 0x0b, 0xbd, 0xeb,
+	0x8c, 0x51, 0x06, 0x63, 0x67, 0xc4, 0x0e, 0x3f, 0xbc, 0x67, 0x23, 0x5f, 0x3e, 0x4a, 0x9a, 0x40,
+	0xbc, 0x53, 0xd2, 0xa1, 0x74, 0x9b, 0x56, 0x23, 0x8b, 0x7c, 0xb5, 0x8f, 0x0e, 0xff, 0xd6, 0x68,
+	0xad, 0xf8, 0x8a, 0x6c, 0x9c, 0x90, 0x6c, 0xca, 0x8f, 0x92, 0xbe, 0x01, 0xd0, 0xc2, 0x88, 0x1a,
+	0x1d, 0x1a, 0xcb, 0xee, 0x25, 0x61, 0x16, 0x2f, 0x1e, 0xe7, 0xa7, 0x61, 0xf3, 0xf5, 0xff, 0xea,
+	0x52, 0x3a, 0xd3, 0xf2, 0x9e, 0xfd, 0xd0, 0xb6, 0x75, 0x06, 0x45, 0xbd, 0xda, 0xef, 0x2d, 0x3a,
+	0x36, 0x49, 0x48, 0x76, 0xcd, 0xcf, 0xd8, 0xfc, 0x2d, 0xdc, 0x0c, 0x8e, 0xa0, 0x33, 0x08, 0xbf,
+	0x63, 0xdb, 0xed, 0xec, 0xf0, 0x49, 0x1f, 0xc2, 0xe8, 0xa7, 0xa8, 0x9a, 0xe3, 0x7a, 0xfe, 0x89,
+	0xd7, 0xc1, 0x2b, 0x92, 0xbe, 0x80, 0xd8, 0x37, 0xd3, 0xbd, 0xd0, 0xf0, 0xc6, 0xf0, 0xf2, 0xc6,
+	0xc5, 0x6f, 0x02, 0xb3, 0x75, 0xa9, 0xb1, 0x2a, 0x25, 0x2e, 0xbb, 0x0d, 0xd2, 0x5b, 0x08, 0x79,
+	0x23, 0x69, 0xdc, 0x1b, 0x6d, 0x3e, 0xcd, 0x7b, 0x47, 0xa7, 0x57, 0x19, 0x79, 0x4e, 0xe8, 0x13,
+	0x88, 0x3e, 0xeb, 0x4a, 0x89, 0xe2, 0x6e, 0xeb, 0x53, 0x80, 0x53, 0x86, 0x68, 0x94, 0xfb, 0x64,
+	0xcd, 0x1f, 0xe4, 0x97, 0xc1, 0x4a, 0xaf, 0xde, 0x5d, 0x7f, 0x09, 0xf4, 0x76, 0x1b, 0xf9, 0x18,
+	0xbe, 0xfc, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x25, 0x40, 0x99, 0xcc, 0x9a, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -273,140 +274,208 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// KafkaAmbassadorClient is the client API for KafkaAmbassador service.
+// PipelineEndpointClient is the client API for PipelineEndpoint service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type KafkaAmbassadorClient interface {
-	Produce(ctx context.Context, opts ...grpc.CallOption) (KafkaAmbassador_ProduceClient, error)
+type PipelineEndpointClient interface {
+	Run(ctx context.Context, opts ...grpc.CallOption) (PipelineEndpoint_RunClient, error)
+	Upload(ctx context.Context, opts ...grpc.CallOption) (PipelineEndpoint_UploadClient, error)
 	ListTopics(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListTopicsResponse, error)
 }
 
-type kafkaAmbassadorClient struct {
+type pipelineEndpointClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewKafkaAmbassadorClient(cc *grpc.ClientConn) KafkaAmbassadorClient {
-	return &kafkaAmbassadorClient{cc}
+func NewPipelineEndpointClient(cc *grpc.ClientConn) PipelineEndpointClient {
+	return &pipelineEndpointClient{cc}
 }
 
-func (c *kafkaAmbassadorClient) Produce(ctx context.Context, opts ...grpc.CallOption) (KafkaAmbassador_ProduceClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_KafkaAmbassador_serviceDesc.Streams[0], "/KafkaAmbassador/Produce", opts...)
+func (c *pipelineEndpointClient) Run(ctx context.Context, opts ...grpc.CallOption) (PipelineEndpoint_RunClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PipelineEndpoint_serviceDesc.Streams[0], "/PipelineEndpoint/Run", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &kafkaAmbassadorProduceClient{stream}
+	x := &pipelineEndpointRunClient{stream}
 	return x, nil
 }
 
-type KafkaAmbassador_ProduceClient interface {
-	Send(*ProdRq) error
-	Recv() (*ProdRs, error)
+type PipelineEndpoint_RunClient interface {
+	Send(*RunRequest) error
+	Recv() (*RunResponse, error)
 	grpc.ClientStream
 }
 
-type kafkaAmbassadorProduceClient struct {
+type pipelineEndpointRunClient struct {
 	grpc.ClientStream
 }
 
-func (x *kafkaAmbassadorProduceClient) Send(m *ProdRq) error {
+func (x *pipelineEndpointRunClient) Send(m *RunRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *kafkaAmbassadorProduceClient) Recv() (*ProdRs, error) {
-	m := new(ProdRs)
+func (x *pipelineEndpointRunClient) Recv() (*RunResponse, error) {
+	m := new(RunResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *kafkaAmbassadorClient) ListTopics(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListTopicsResponse, error) {
+func (c *pipelineEndpointClient) Upload(ctx context.Context, opts ...grpc.CallOption) (PipelineEndpoint_UploadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PipelineEndpoint_serviceDesc.Streams[1], "/PipelineEndpoint/Upload", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pipelineEndpointUploadClient{stream}
+	return x, nil
+}
+
+type PipelineEndpoint_UploadClient interface {
+	Send(*RunRequest) error
+	Recv() (*RunResponse, error)
+	grpc.ClientStream
+}
+
+type pipelineEndpointUploadClient struct {
+	grpc.ClientStream
+}
+
+func (x *pipelineEndpointUploadClient) Send(m *RunRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *pipelineEndpointUploadClient) Recv() (*RunResponse, error) {
+	m := new(RunResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *pipelineEndpointClient) ListTopics(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListTopicsResponse, error) {
 	out := new(ListTopicsResponse)
-	err := c.cc.Invoke(ctx, "/KafkaAmbassador/ListTopics", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/PipelineEndpoint/ListTopics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// KafkaAmbassadorServer is the server API for KafkaAmbassador service.
-type KafkaAmbassadorServer interface {
-	Produce(KafkaAmbassador_ProduceServer) error
+// PipelineEndpointServer is the server API for PipelineEndpoint service.
+type PipelineEndpointServer interface {
+	Run(PipelineEndpoint_RunServer) error
+	Upload(PipelineEndpoint_UploadServer) error
 	ListTopics(context.Context, *Empty) (*ListTopicsResponse, error)
 }
 
-// UnimplementedKafkaAmbassadorServer can be embedded to have forward compatible implementations.
-type UnimplementedKafkaAmbassadorServer struct {
+// UnimplementedPipelineEndpointServer can be embedded to have forward compatible implementations.
+type UnimplementedPipelineEndpointServer struct {
 }
 
-func (*UnimplementedKafkaAmbassadorServer) Produce(srv KafkaAmbassador_ProduceServer) error {
-	return status.Errorf(codes.Unimplemented, "method Produce not implemented")
+func (*UnimplementedPipelineEndpointServer) Run(srv PipelineEndpoint_RunServer) error {
+	return status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
-func (*UnimplementedKafkaAmbassadorServer) ListTopics(ctx context.Context, req *Empty) (*ListTopicsResponse, error) {
+func (*UnimplementedPipelineEndpointServer) Upload(srv PipelineEndpoint_UploadServer) error {
+	return status.Errorf(codes.Unimplemented, "method Upload not implemented")
+}
+func (*UnimplementedPipelineEndpointServer) ListTopics(ctx context.Context, req *Empty) (*ListTopicsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTopics not implemented")
 }
 
-func RegisterKafkaAmbassadorServer(s *grpc.Server, srv KafkaAmbassadorServer) {
-	s.RegisterService(&_KafkaAmbassador_serviceDesc, srv)
+func RegisterPipelineEndpointServer(s *grpc.Server, srv PipelineEndpointServer) {
+	s.RegisterService(&_PipelineEndpoint_serviceDesc, srv)
 }
 
-func _KafkaAmbassador_Produce_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(KafkaAmbassadorServer).Produce(&kafkaAmbassadorProduceServer{stream})
+func _PipelineEndpoint_Run_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PipelineEndpointServer).Run(&pipelineEndpointRunServer{stream})
 }
 
-type KafkaAmbassador_ProduceServer interface {
-	Send(*ProdRs) error
-	Recv() (*ProdRq, error)
+type PipelineEndpoint_RunServer interface {
+	Send(*RunResponse) error
+	Recv() (*RunRequest, error)
 	grpc.ServerStream
 }
 
-type kafkaAmbassadorProduceServer struct {
+type pipelineEndpointRunServer struct {
 	grpc.ServerStream
 }
 
-func (x *kafkaAmbassadorProduceServer) Send(m *ProdRs) error {
+func (x *pipelineEndpointRunServer) Send(m *RunResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *kafkaAmbassadorProduceServer) Recv() (*ProdRq, error) {
-	m := new(ProdRq)
+func (x *pipelineEndpointRunServer) Recv() (*RunRequest, error) {
+	m := new(RunRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func _KafkaAmbassador_ListTopics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PipelineEndpoint_Upload_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PipelineEndpointServer).Upload(&pipelineEndpointUploadServer{stream})
+}
+
+type PipelineEndpoint_UploadServer interface {
+	Send(*RunResponse) error
+	Recv() (*RunRequest, error)
+	grpc.ServerStream
+}
+
+type pipelineEndpointUploadServer struct {
+	grpc.ServerStream
+}
+
+func (x *pipelineEndpointUploadServer) Send(m *RunResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *pipelineEndpointUploadServer) Recv() (*RunRequest, error) {
+	m := new(RunRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _PipelineEndpoint_ListTopics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(KafkaAmbassadorServer).ListTopics(ctx, in)
+		return srv.(PipelineEndpointServer).ListTopics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/KafkaAmbassador/ListTopics",
+		FullMethod: "/PipelineEndpoint/ListTopics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KafkaAmbassadorServer).ListTopics(ctx, req.(*Empty))
+		return srv.(PipelineEndpointServer).ListTopics(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _KafkaAmbassador_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "KafkaAmbassador",
-	HandlerType: (*KafkaAmbassadorServer)(nil),
+var _PipelineEndpoint_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "PipelineEndpoint",
+	HandlerType: (*PipelineEndpointServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListTopics",
-			Handler:    _KafkaAmbassador_ListTopics_Handler,
+			Handler:    _PipelineEndpoint_ListTopics_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Produce",
-			Handler:       _KafkaAmbassador_Produce_Handler,
+			StreamName:    "Run",
+			Handler:       _PipelineEndpoint_Run_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Upload",
+			Handler:       _PipelineEndpoint_Upload_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
